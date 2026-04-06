@@ -1,0 +1,3 @@
+/* Minimal styles for AppShell navigation */
+header a{color:inherit;text-decoration:none}
+header a:hover{text-decoration:underline}
