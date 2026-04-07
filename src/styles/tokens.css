@@ -1,5 +1,35 @@
-:root{
-  --bg: #ffffff;
-  --text: #111827;
-  --muted: #6b7280;
+:root {
+  --bg: #000000;
+  --bg-elevated: #0d0f11;
+  --bg-panel: #15191d;
+  --bg-panel-2: #1c2228;
+  --bg-panel-3: #232b33;
+  --bg-soft: #101417;
+  --text: #f4f0e6;
+  --text-strong: #fffaf0;
+  --muted: #9aa3ab;
+  --muted-strong: #c0c7cd;
+  --line: rgba(244, 240, 230, 0.14);
+  --line-strong: rgba(244, 240, 230, 0.28);
+  --shadow: 0 16px 40px rgba(0, 0, 0, 0.38);
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 16px;
+  --space-4: 20px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --wheels: #1bebf8;
+  --shields: #faf21b;
+  --swords: #e60000;
+  --stars: #00d600;
+  --braid-a: rgba(250, 242, 27, 0.34);
+  --braid-b: rgba(244, 240, 230, 0.1);
+  --braid-c: rgba(27, 235, 248, 0.22);
+  --hero-glow: radial-gradient(circle at top left, rgba(27, 235, 248, 0.12), transparent 34%),
+    radial-gradient(circle at top right, rgba(230, 0, 0, 0.12), transparent 36%),
+    radial-gradient(circle at bottom center, rgba(0, 214, 0, 0.1), transparent 42%);
 }

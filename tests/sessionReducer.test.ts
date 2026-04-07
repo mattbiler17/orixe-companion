@@ -22,12 +22,13 @@ describe('sessionReducer', () => {
       currentHandSize: 3,
       dealerSeat: 1,
       isComplete: false,
+      currentHand: null,
     })
     expect(session.scoresByPlayer).toEqual({ p1: 0, p2: 0, p3: 0 })
     expect(session.bagsByPlayer).toEqual({ p1: 0, p2: 0, p3: 0 })
   })
 
-  it('applies a multiplayer hand result and advances the session', () => {
+  it('saves a pre-hand draft and clears it after applying a multiplayer hand', () => {
     const session = createSessionState({
       id: 'session-1',
       mode: 'multiplayer',
@@ -38,12 +39,34 @@ describe('sessionReducer', () => {
       ],
     })
 
-    const nextState = sessionReducer(session, {
+    const withCurrentHand = sessionReducer(session, {
+      type: 'SAVE_CURRENT_HAND',
+      payload: {
+        mode: 'multiplayer',
+        handId: 'h1',
+        handSize: 3,
+        dealerId: 'p1',
+        trump: 'stars',
+        players: [
+          { playerId: 'p1', bid: 2 },
+          { playerId: 'p2', bid: 1 },
+          { playerId: 'p3', bid: 0 },
+        ],
+      },
+    })
+
+    expect(withCurrentHand.currentHand).toMatchObject({
+      handId: 'h1',
+      trump: 'stars',
+    })
+
+    const nextState = sessionReducer(withCurrentHand, {
       type: 'APPLY_MULTIPLAYER_HAND',
       payload: {
         timestamp: '2026-04-06T10:00:00.000Z',
         input: {
           handId: 'h1',
+          trump: 'stars',
           players: [],
         },
         result: {
@@ -93,6 +116,8 @@ describe('sessionReducer', () => {
     expect(nextState.bagsByPlayer).toEqual({ p1: 1, p2: 0, p3: 0 })
     expect(nextState.history).toHaveLength(1)
     expect(nextState.history[0].summary).toBe('Multiplayer hand h1 completed')
+    expect(nextState.history[0].input.trump).toBe('stars')
+    expect(nextState.currentHand).toBeNull()
     expect(nextState.currentRungIndex).toBe(1)
     expect(nextState.currentHandSize).toBe(4)
     expect(nextState.dealerSeat).toBe(1)

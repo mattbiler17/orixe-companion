@@ -45,6 +45,18 @@ function getBagGain(bid: number, tricksWon: number): number {
   return Math.max(0, tricksWon - bid)
 }
 
+function didMakeBid(bid: number, tricksWon: number): boolean {
+  return bid === 0 ? tricksWon === 0 : tricksWon >= bid
+}
+
+function getPrimePoints(player: MultiplayerHandInput['players'][number]): number {
+  if (player.bid === 0) {
+    return 0
+  }
+
+  return didMakeBid(player.bid, player.tricksWon) ? player.primesCount : 0
+}
+
 function applyBagPenalty(previousBags: number, bagGain: number): {
   bagPenaltyApplied: boolean
   bagPenaltyPoints: number
@@ -75,7 +87,7 @@ function scorePlayer(player: MultiplayerHandInput['players'][number], handSize: 
   const previousBags = player.previousBags ?? 0
   const previousTotalPoints = player.previousTotalPoints ?? 0
   const contractPoints = getContractPoints(player.bid, player.tricksWon, handSize)
-  const primePoints = player.primesCount
+  const primePoints = getPrimePoints(player)
   const bagGain = getBagGain(player.bid, player.tricksWon)
   const { bagPenaltyApplied, bagPenaltyPoints, newBagTotal } = applyBagPenalty(previousBags, bagGain)
   const totalDelta = contractPoints + primePoints + bagPenaltyPoints

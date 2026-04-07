@@ -9,6 +9,31 @@ import type {
 } from '../models/orixe'
 import { getRungSequence } from './rungs'
 
+export type CurrentMultiplayerHandDraft = {
+  mode: 'multiplayer'
+  handId: string
+  handSize: number
+  dealerId?: string
+  trump: Suit
+  players: Array<{
+    playerId: string
+    bid: number
+  }>
+}
+
+export type CurrentDuelHandDraft = {
+  mode: 'duel'
+  handId: string
+  handSize: number
+  dealerId?: string
+  trump: Suit
+  declarerId: string
+  defenderId: string
+  declarerContract: number
+}
+
+export type CurrentHandDraft = CurrentMultiplayerHandDraft | CurrentDuelHandDraft
+
 export type SessionHistoryEntry = {
   handId: string
   mode: GameMode
@@ -27,6 +52,7 @@ export type Session = {
   currentHandSize: number | null
   dealerSeat: number
   trump: Suit | null
+  currentHand: CurrentHandDraft | null
   scoresByPlayer: Record<string, number>
   bagsByPlayer: Record<string, number>
   history: SessionHistoryEntry[]
@@ -44,6 +70,8 @@ export type CreateSessionPayload = {
 export type SessionAction =
   | { type: 'CREATE_SESSION'; payload: CreateSessionPayload }
   | { type: 'LOAD_SESSION'; payload: Session }
+  | { type: 'SAVE_CURRENT_HAND'; payload: CurrentHandDraft }
+  | { type: 'CLEAR_CURRENT_HAND' }
   | {
       type: 'APPLY_MULTIPLAYER_HAND'
       payload: { input: MultiplayerHandInput; result: MultiplayerHandResult; timestamp: string }
@@ -66,6 +94,7 @@ export const initialSession: Session = {
   currentHandSize: null,
   dealerSeat: 0,
   trump: null,
+  currentHand: null,
   scoresByPlayer: {},
   bagsByPlayer: {},
   history: [],
@@ -161,7 +190,13 @@ function applyDuelScores(
 }
 
 function progressAfterHand(state: Session): Session {
-  return advanceRung(rotateDealerSeat(state))
+  return advanceRung(
+    rotateDealerSeat({
+      ...state,
+      trump: null,
+      currentHand: null,
+    }),
+  )
 }
 
 function createMultiplayerSummary(input: MultiplayerHandInput): string {
@@ -183,7 +218,8 @@ export function createSessionState(payload: CreateSessionPayload): Session {
     currentRungIndex: 0,
     currentHandSize: getHandSizeAtIndex(rungSequence, 0),
     dealerSeat: normalizeDealerSeat(payload.dealerSeat, payload.players.length),
-    trump: payload.trump ?? null,
+    trump: null,
+    currentHand: null,
     scoresByPlayer: createZeroMap(payload.players),
     bagsByPlayer: createZeroMap(payload.players),
     history: [],
@@ -198,6 +234,20 @@ export function sessionReducer(state: Session, action: SessionAction): Session {
 
     case 'LOAD_SESSION':
       return action.payload
+
+    case 'SAVE_CURRENT_HAND':
+      return {
+        ...state,
+        trump: action.payload.trump,
+        currentHand: action.payload,
+      }
+
+    case 'CLEAR_CURRENT_HAND':
+      return {
+        ...state,
+        trump: null,
+        currentHand: null,
+      }
 
     case 'APPLY_MULTIPLAYER_HAND': {
       const updatedTotals = applyMultiplayerScores(state, action.payload.result)

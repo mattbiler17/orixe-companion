@@ -50,6 +50,7 @@ export type MultiplayerHandInput = {
   dealerId?: string
   rung?: number
   handSize?: number
+  trump?: Suit | null
   players: MultiplayerPlayerInput[]
   // optional metadata
   note?: string
@@ -83,6 +84,7 @@ export type DuelHandInput = {
   declarerContract: number
   declarerTricksWon: number
   handSize?: number
+  trump?: Suit | null
   // primes tracked as counts (ordinary primes) for each side
   declarerPrimesCount: number
   defenderPrimesCount: number

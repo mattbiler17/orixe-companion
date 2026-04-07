@@ -94,7 +94,7 @@ export function scoreDuelHand(input: DuelHandInput): DuelHandResult {
     contractMade,
   })
 
-  const declarerPrimePoints = input.declarerPrimesCount
+  const declarerPrimePoints = contractMade ? input.declarerPrimesCount : 0
   const defenderPrimePoints = input.defenderPrimesCount
   const declarerTotalDelta =
     contractPoints + declarerPrimePoints + cachePrimePoints.declarer + bagPenaltyPoints

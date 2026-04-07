@@ -47,7 +47,8 @@ describe('duelScoring', () => {
 
     expect(result.declarer.contractMade).toBe(false)
     expect(result.declarer.contractPoints).toBe(-12)
-    expect(result.declarer.totalDelta).toBe(-11)
+    expect(result.declarer.primePoints).toBe(0)
+    expect(result.declarer.totalDelta).toBe(-12)
   })
 
   it('gives bags only to the declarer', () => {
@@ -149,7 +150,8 @@ describe('duelScoring', () => {
     } as any)
 
     expect(result.declarer.cachePrimePoints).toBe(0)
-    expect(result.declarer.totalDelta).toBe(-11)
+    expect(result.declarer.primePoints).toBe(0)
+    expect(result.declarer.totalDelta).toBe(-12)
   })
 
   it('rejects invalid input', () => {

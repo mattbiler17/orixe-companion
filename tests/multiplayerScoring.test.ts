@@ -30,13 +30,14 @@ describe('multiplayerScoring', () => {
       handId: 'h2',
       handSize: 5,
       players: [
-        { playerId: 'p1', bid: 2, tricksWon: 1, primesCount: 0, previousBags: 0 },
+        { playerId: 'p1', bid: 2, tricksWon: 1, primesCount: 2, previousBags: 0 },
         { playerId: 'p2', bid: 2, tricksWon: 2, primesCount: 0, previousBags: 0 },
         { playerId: 'p3', bid: 1, tricksWon: 2, primesCount: 0, previousBags: 0 },
       ],
     } as any)
 
     expect(result.breakdowns[0].contractPoints).toBe(-6)
+    expect(result.breakdowns[0].primePoints).toBe(0)
     expect(result.breakdowns[0].totalDelta).toBe(-6)
   })
 
@@ -45,13 +46,14 @@ describe('multiplayerScoring', () => {
       handId: 'h3',
       handSize: 5,
       players: [
-        { playerId: 'p1', bid: 0, tricksWon: 0, primesCount: 0, previousBags: 0 },
+        { playerId: 'p1', bid: 0, tricksWon: 0, primesCount: 2, previousBags: 0 },
         { playerId: 'p2', bid: 2, tricksWon: 2, primesCount: 0, previousBags: 0 },
         { playerId: 'p3', bid: 3, tricksWon: 3, primesCount: 0, previousBags: 0 },
       ],
     } as any)
 
     expect(result.breakdowns[0].contractPoints).toBe(5)
+    expect(result.breakdowns[0].primePoints).toBe(0)
   })
 
   it('scores a failed zero bid', () => {

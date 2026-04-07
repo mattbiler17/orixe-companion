@@ -1,3 +1,405 @@
 @import './tokens.css';
-html,body,#root{height:100%}
-body{margin:0;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 20%),
+    linear-gradient(180deg, #050607 0%, #000000 100%);
+  color: var(--text);
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+strong {
+  color: var(--text-strong);
+}
+
+.app-screen {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.app-stack {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.app-section-title {
+  margin: 0 0 var(--space-2);
+  font-family: 'Trebuchet MS', 'Avenir Next', sans-serif;
+  font-size: clamp(1.45rem, 2vw, 1.9rem);
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.app-kicker {
+  margin: 0 0 var(--space-2);
+  color: var(--shields);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.app-copy {
+  margin: 0;
+  color: var(--muted-strong);
+  line-height: 1.6;
+}
+
+.app-muted {
+  color: var(--muted);
+}
+
+.orixe-panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 24%), var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.orixe-braid-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 22%),
+    linear-gradient(var(--bg-panel), var(--bg-panel)) padding-box,
+    repeating-linear-gradient(
+      55deg,
+      var(--braid-a) 0 8px,
+      var(--braid-b) 8px 16px,
+      var(--braid-c) 16px 24px,
+      var(--braid-b) 24px 32px
+    ) border-box;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.orixe-panel-body {
+  padding: var(--space-5);
+}
+
+.orixe-panel-tight {
+  padding: var(--space-4);
+}
+
+.orixe-hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--hero-glow), linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 25%), var(--bg-panel);
+}
+
+.orixe-grid-2 {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.orixe-grid-3 {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.orixe-inline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.orixe-meta-chip {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted-strong);
+  font-size: 0.85rem;
+}
+
+.orixe-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.orixe-button,
+.orixe-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px;
+  min-width: 180px;
+  padding: 14px 18px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.orixe-button {
+  border: 1px solid rgba(27, 235, 248, 0.35);
+  background: linear-gradient(180deg, rgba(27, 235, 248, 0.18), rgba(27, 235, 248, 0.08));
+  color: var(--text-strong);
+}
+
+.orixe-button-secondary {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+}
+
+.orixe-button-full {
+  width: 100%;
+}
+
+.orixe-field-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.orixe-field-group {
+  display: grid;
+  gap: 10px;
+}
+
+.orixe-label {
+  color: var(--muted-strong);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.orixe-input,
+.orixe-select {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel-2);
+  color: var(--text);
+}
+
+.orixe-input:focus,
+.orixe-select:focus {
+  outline: 2px solid rgba(27, 235, 248, 0.25);
+  border-color: rgba(27, 235, 248, 0.5);
+}
+
+.orixe-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.orixe-row-card {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 40%), var(--bg-panel-2);
+}
+
+.orixe-compact-row {
+  display: grid;
+  gap: var(--space-3);
+  align-items: end;
+  grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(120px, 0.8fr));
+}
+
+.orixe-scoreboard {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.orixe-score-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(80px, auto));
+  gap: var(--space-3);
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.orixe-score-value {
+  text-align: right;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.orixe-detail-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.orixe-detail-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.orixe-detail-label {
+  color: var(--muted);
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.orixe-summary-grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.orixe-summary-card {
+  display: grid;
+  gap: 10px;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 30%), var(--bg-panel-2);
+}
+
+.orixe-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.orixe-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted-strong);
+  font-size: 0.82rem;
+}
+
+.orixe-badge-positive {
+  border-color: rgba(0, 214, 0, 0.35);
+  color: #bbf8bb;
+}
+
+.orixe-badge-warning {
+  border-color: rgba(250, 242, 27, 0.35);
+  color: #f9f4a1;
+}
+
+.orixe-badge-danger {
+  border-color: rgba(230, 0, 0, 0.35);
+  color: #ffb1b1;
+}
+
+.orixe-delta-positive {
+  color: #9cf39c;
+}
+
+.orixe-delta-negative {
+  color: #ff9e9e;
+}
+
+.orixe-trump-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 22%),
+    linear-gradient(var(--bg-panel-2), var(--bg-panel-2)) padding-box,
+    conic-gradient(
+      from 180deg,
+      rgba(27, 235, 248, 0.45),
+      rgba(250, 242, 27, 0.5),
+      rgba(230, 0, 0, 0.45),
+      rgba(0, 214, 0, 0.45),
+      rgba(27, 235, 248, 0.45)
+    ) border-box;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.suit-wheels {
+  color: var(--wheels);
+}
+
+.suit-shields {
+  color: var(--shields);
+}
+
+.suit-swords {
+  color: var(--swords);
+}
+
+.suit-stars {
+  color: var(--stars);
+}
+
+.suit-badge.suit-wheels {
+  border-color: rgba(27, 235, 248, 0.4);
+  background: rgba(27, 235, 248, 0.1);
+}
+
+.suit-badge.suit-shields {
+  border-color: rgba(250, 242, 27, 0.4);
+  background: rgba(250, 242, 27, 0.08);
+}
+
+.suit-badge.suit-swords {
+  border-color: rgba(230, 0, 0, 0.4);
+  background: rgba(230, 0, 0, 0.1);
+}
+
+.suit-badge.suit-stars {
+  border-color: rgba(0, 214, 0, 0.4);
+  background: rgba(0, 214, 0, 0.1);
+}
+
+.orixe-error {
+  color: #ffb1b1;
+}
+
+@media (max-width: 800px) {
+  .orixe-grid-2,
+  .orixe-grid-3,
+  .orixe-compact-row,
+  .orixe-score-row,
+  .orixe-detail-row {
+    grid-template-columns: 1fr;
+  }
+
+  .orixe-panel-body,
+  .orixe-panel-tight {
+    padding: var(--space-4);
+  }
+
+  .orixe-button,
+  .orixe-button-secondary {
+    width: 100%;
+  }
+}
