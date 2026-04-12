@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { JewelBox, JewelButton } from '../../components/ui'
 import { scoreDuelHand } from '../../engine/duelScoring'
 import { scoreMultiplayerHand } from '../../engine/multiplayerScoring'
 import { sessionReducer } from '../../engine/sessionReducer'
 import type { CacheWinner, DuelHandInput, MultiplayerHandInput } from '../../models/orixe'
-import { CACHE_CAP } from '../../models/orixe'
 import useSession from '../../hooks/useSession'
+
+type RequiredCacheWinner = Exclude<CacheWinner, 'None'>
 
 type MultiplayerPostHandDraft = {
   tricksWon: string
@@ -14,8 +16,8 @@ type MultiplayerPostHandDraft = {
 
 function createMultiplayerDraft(playerCount: number): MultiplayerPostHandDraft[] {
   return Array.from({ length: playerCount }, () => ({
-    tricksWon: '0',
-    primesCount: '0',
+    tricksWon: '',
+    primesCount: '',
   }))
 }
 
@@ -36,19 +38,18 @@ export default function ResultEntryScreen() {
   const [multiplayerDraft, setMultiplayerDraft] = useState<MultiplayerPostHandDraft[]>(
     () => createMultiplayerDraft(session.players.length || 2),
   )
-  const [declarerTricksWon, setDeclarerTricksWon] = useState<string>('0')
-  const [declarerPrimesCount, setDeclarerPrimesCount] = useState<string>('0')
-  const [defenderPrimesCount, setDefenderPrimesCount] = useState<string>('0')
-  const [cacheWinner, setCacheWinner] = useState<CacheWinner>('None')
-  const [cachePrimes, setCachePrimes] = useState<string>('0')
+  const [declarerTricksWon, setDeclarerTricksWon] = useState<string>('')
+  const [declarerPrimesCount, setDeclarerPrimesCount] = useState<string>('')
+  const [defenderPrimesCount, setDefenderPrimesCount] = useState<string>('')
+  const [cacheWinner, setCacheWinner] = useState<RequiredCacheWinner | ''>('')
+  const [cachePrimes, setCachePrimes] = useState<number | null>(null)
 
   if (!session.id || session.players.length === 0 || session.currentHandSize === null) {
     return (
       <section className="app-screen">
-        <div className="orixe-braid-panel">
+        <div className="orixe-panel">
           <div className="orixe-panel-body app-stack">
             <h2 className="app-section-title">No Hand Ready</h2>
-            <p className="app-copy">Create or resume a session before entering results.</p>
           </div>
         </div>
       </section>
@@ -58,10 +59,10 @@ export default function ResultEntryScreen() {
   if (!currentHand) {
     return (
       <section className="app-screen">
-        <div className="orixe-braid-panel">
+        <div className="orixe-panel">
           <div className="orixe-panel-body app-stack">
             <h2 className="app-section-title">Finish Pre-Hand Entry First</h2>
-            <p className="app-copy">Save Trump and bids before entering tricks and primes.</p>
+            <p className="app-copy">Save Trump and bids first.</p>
           </div>
         </div>
       </section>
@@ -129,7 +130,29 @@ export default function ResultEntryScreen() {
       return
     }
 
+    if (!cacheWinner) {
+      setError('Choose a Cache Winner before starting.')
+      return
+    }
+
+    if (cachePrimes === null || Number.isNaN(cachePrimes)) {
+      setError('Cache Primes must be ≥ 0')
+      return
+    }
+
+    if (cachePrimes < 0) {
+      setError('Cache Primes must be ≥ 0')
+      return
+    }
+
     try {
+      const derivedDefenderTricks = handSize - parseWholeNumber(declarerTricksWon)
+
+      if (Number.isNaN(derivedDefenderTricks) || derivedDefenderTricks < 0) {
+        setError('Declarer Tricks must be between 0 and hand size.')
+        return
+      }
+
       const input: DuelHandInput = {
         handId: activeHand.handId,
         declarerId: activeHand.declarerId,
@@ -139,7 +162,7 @@ export default function ResultEntryScreen() {
         declarerPrimesCount: parseWholeNumber(declarerPrimesCount),
         defenderPrimesCount: parseWholeNumber(defenderPrimesCount),
         cacheWinner,
-        cachePrimes: parseWholeNumber(cachePrimes),
+        cachePrimes,
         previousBags: session.bagsByPlayer[activeHand.declarerId] ?? 0,
         handSize,
         trump: activeHand.trump,
@@ -164,7 +187,7 @@ export default function ResultEntryScreen() {
 
   return (
     <section className="app-screen">
-      <div className="orixe-braid-panel">
+      <div className="orixe-panel">
         <div className="orixe-panel-body app-stack">
           <p className="app-kicker">Post-Hand Entry</p>
           <h2 className="app-section-title">Capture Tricks And Primes</h2>
@@ -175,7 +198,7 @@ export default function ResultEntryScreen() {
         </div>
       </div>
 
-      <div className="orixe-trump-panel">
+      <div className="orixe-panel">
         <div className="orixe-panel-body app-stack">
           <p className="app-kicker">Saved Trump</p>
           <div className="orixe-badge-row">
@@ -185,107 +208,153 @@ export default function ResultEntryScreen() {
       </div>
 
       {activeHand.mode === 'multiplayer' ? (
-        <div className="orixe-panel">
-          <div className="orixe-panel-body app-stack">
-            <p className="app-kicker">Multiplayer Results</p>
-            <div className="orixe-list">
+        <JewelBox>
+          <div className="app-stack">
+            <div className="orixe-results-list">
               {activeHand.players.map((handPlayer, index) => {
                 const player = session.players.find((currentPlayer) => currentPlayer.id === handPlayer.playerId)
+                const enteredTricks = Number(multiplayerDraft[index]?.tricksWon || '0')
+                const missedBid = handPlayer.bid === 0 ? enteredTricks > 0 : enteredTricks < handPlayer.bid
 
                 return (
-                  <div key={handPlayer.playerId} className="orixe-row-card orixe-compact-row">
-                    <div className="app-stack" style={{ gap: '6px' }}>
-                      <strong>{player?.name ?? handPlayer.playerId}</strong>
-                      <span className="orixe-badge">Saved Bid {handPlayer.bid}</span>
+                  <JewelBox key={handPlayer.playerId} className={missedBid ? 'is-muted' : undefined}>
+                    <div className="orixe-results-row-grid">
+                      <div className="orixe-jewel-subbox">
+                        <span className="orixe-jewel-subbox-label">Player</span>
+                        <strong>{player?.name ?? handPlayer.playerId}</strong>
+                        <span className={`orixe-badge${missedBid ? ' orixe-badge-warning' : ''}`}>Saved Bid {handPlayer.bid}</span>
+                      </div>
+                      <label className="orixe-jewel-subbox">
+                        <span className="orixe-jewel-subbox-label">Tricks</span>
+                        <input
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={multiplayerDraft[index]?.tricksWon ?? ''}
+                          onChange={(event) =>
+                            setMultiplayerDraft((currentDraft) =>
+                              currentDraft.map((entry, currentIndex) =>
+                                currentIndex === index ? { ...entry, tricksWon: event.target.value } : entry,
+                              ),
+                            )
+                          }
+                          className="orixe-input orixe-input-jewel orixe-input-jewel-plain"
+                        />
+                      </label>
+                      <label className="orixe-jewel-subbox">
+                        <span className="orixe-jewel-subbox-label">Primes</span>
+                        <input
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={multiplayerDraft[index]?.primesCount ?? ''}
+                          onChange={(event) =>
+                            setMultiplayerDraft((currentDraft) =>
+                              currentDraft.map((entry, currentIndex) =>
+                                currentIndex === index ? { ...entry, primesCount: event.target.value } : entry,
+                              ),
+                            )
+                          }
+                          className="orixe-input orixe-input-jewel orixe-input-jewel-plain"
+                        />
+                      </label>
                     </div>
-                    <label className="orixe-field-group">
-                      <span className="orixe-label">Tricks Won</span>
-                      <input
-                        inputMode="numeric"
-                        value={multiplayerDraft[index]?.tricksWon ?? '0'}
-                        onChange={(event) =>
-                          setMultiplayerDraft((currentDraft) =>
-                            currentDraft.map((entry, currentIndex) =>
-                              currentIndex === index ? { ...entry, tricksWon: event.target.value } : entry,
-                            ),
-                          )
-                        }
-                        className="orixe-input"
-                      />
-                    </label>
-                    <label className="orixe-field-group">
-                      <span className="orixe-label">Primes Captured</span>
-                      <input
-                        inputMode="numeric"
-                        value={multiplayerDraft[index]?.primesCount ?? '0'}
-                        onChange={(event) =>
-                          setMultiplayerDraft((currentDraft) =>
-                            currentDraft.map((entry, currentIndex) =>
-                              currentIndex === index ? { ...entry, primesCount: event.target.value } : entry,
-                            ),
-                          )
-                        }
-                        className="orixe-input"
-                      />
-                    </label>
-                  </div>
+                  </JewelBox>
                 )
               })}
             </div>
-
-            <button onClick={submitMultiplayerResult} className="orixe-button orixe-button-full">
-              Score Hand
-            </button>
           </div>
-        </div>
+        </JewelBox>
       ) : (
-        <div className="orixe-panel">
-          <div className="orixe-panel-body app-stack">
-            <p className="app-kicker">Duel Results</p>
-            <div className="orixe-detail-grid">
-              <div className="orixe-detail-row">
-                <span className="orixe-detail-label">Declarer</span>
-                <span>{declarer.name}</span>
-              </div>
-              <div className="orixe-detail-row">
-                <span className="orixe-detail-label">Saved Contract</span>
-                <span>{activeHand.declarerContract}</span>
-              </div>
-            </div>
-            <div className="orixe-field-grid">
-              <label className="orixe-field-group">
-                <span className="orixe-label">Declarer Tricks Won</span>
-                <input inputMode="numeric" value={declarerTricksWon} onChange={(event) => setDeclarerTricksWon(event.target.value)} className="orixe-input" />
-              </label>
-              <label className="orixe-field-group">
-                <span className="orixe-label">Declarer Primes Captured</span>
-                <input inputMode="numeric" value={declarerPrimesCount} onChange={(event) => setDeclarerPrimesCount(event.target.value)} className="orixe-input" />
-              </label>
-              <label className="orixe-field-group">
-                <span className="orixe-label">Defender Primes Captured</span>
-                <input inputMode="numeric" value={defenderPrimesCount} onChange={(event) => setDefenderPrimesCount(event.target.value)} className="orixe-input" />
-              </label>
-              <label className="orixe-field-group">
-                <span className="orixe-label">Cache Winner</span>
-                <select value={cacheWinner} onChange={(event) => setCacheWinner(event.target.value as CacheWinner)} className="orixe-select">
-                  <option value="None">None</option>
-                  <option value="Declarer">Declarer</option>
-                  <option value="Defender">Defender</option>
-                </select>
-              </label>
-              <label className="orixe-field-group">
-                <span className="orixe-label">Cache Primes</span>
-                <input inputMode="numeric" value={cachePrimes} onChange={(event) => setCachePrimes(event.target.value)} className="orixe-input" />
-              </label>
-            </div>
-            <p className="app-copy">Cache cap is {CACHE_CAP}. Validation beyond current scoring rules is still TODO.</p>
+        <JewelBox>
+          <div className="app-stack">
+            <div className="orixe-results-list">
+              <JewelBox>
+                <div className="orixe-results-row-grid">
+                  <div className="orixe-jewel-subbox">
+                    <span className="orixe-jewel-subbox-label">Player</span>
+                    <strong>DECLARER</strong>
+                    <span className="app-muted">{declarer.name}</span>
+                  </div>
+                  <label className="orixe-jewel-subbox">
+                    <span className="orixe-jewel-subbox-label">Tricks</span>
+                    <input
+                      inputMode="numeric"
+                      placeholder="0"
+                      value={declarerTricksWon}
+                      onChange={(event) => setDeclarerTricksWon(event.target.value)}
+                      className="orixe-input orixe-input-jewel orixe-input-jewel-plain"
+                    />
+                  </label>
+                  <label className="orixe-jewel-subbox">
+                    <span className="orixe-jewel-subbox-label">Primes</span>
+                    <input
+                      inputMode="numeric"
+                      placeholder="0"
+                      value={declarerPrimesCount}
+                      onChange={(event) => setDeclarerPrimesCount(event.target.value)}
+                      className="orixe-input orixe-input-jewel orixe-input-jewel-plain"
+                    />
+                  </label>
+                </div>
+              </JewelBox>
 
-            <button onClick={submitDuelResult} className="orixe-button orixe-button-full">
-              Score Hand
-            </button>
+              <JewelBox>
+                <div className="orixe-results-row-grid orixe-results-row-grid--duel-defender">
+                  <div className="orixe-jewel-subbox">
+                    <span className="orixe-jewel-subbox-label">Player</span>
+                    <strong>DEFENDER</strong>
+                    <span className="app-muted">{defender?.name ?? 'Unassigned'}</span>
+                  </div>
+                  <label className="orixe-jewel-subbox">
+                    <span className="orixe-jewel-subbox-label">Primes</span>
+                    <input
+                      inputMode="numeric"
+                      placeholder="0"
+                      value={defenderPrimesCount}
+                      onChange={(event) => setDefenderPrimesCount(event.target.value)}
+                      className="orixe-input orixe-input-jewel orixe-input-jewel-plain"
+                    />
+                  </label>
+                </div>
+              </JewelBox>
+
+              <div className="orixe-results-cache-grid">
+                <div className="orixe-jewel-subbox">
+                  <span className="orixe-jewel-subbox-label">Cache Winner</span>
+                  <div className="orixe-results-choice-grid">
+                    {(['Declarer', 'Defender'] as const).map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setCacheWinner(option)}
+                        className={`orixe-jewel-box orixe-jewel-box--interactive orixe-results-choice${cacheWinner === option ? ' is-selected' : ''}`}
+                      >
+                        <span className="orixe-jewel-box__content">
+                          <span className="orixe-results-choice-label">{option}</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <label className="orixe-jewel-subbox">
+                  <span className="orixe-jewel-subbox-label">Cache Primes</span>
+                  <input
+                    inputMode="numeric"
+                    placeholder="0"
+                    value={cachePrimes ?? ''}
+                    onChange={(event) => {
+                      const val = event.target.value
+                      setCachePrimes(val === '' ? null : Number(val))
+                    }}
+                    className="orixe-input orixe-input-jewel orixe-input-jewel-plain"
+                  />
+                </label>
+              </div>
+            </div>
           </div>
-        </div>
+        </JewelBox>
       )}
+
+      <JewelButton onClick={activeHand.mode === 'multiplayer' ? submitMultiplayerResult : submitDuelResult}>Start</JewelButton>
 
       {error ? (
         <div className="orixe-panel">

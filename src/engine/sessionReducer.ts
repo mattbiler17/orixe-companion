@@ -208,20 +208,35 @@ function createDuelSummary(input: DuelHandInput): string {
 }
 
 export function createSessionState(payload: CreateSessionPayload): Session {
-  const rungSequence = getRungSequence(payload.players.length)
+  const normalizedPlayers =
+    payload.mode === 'duel'
+      ? payload.players.slice(0, 2)
+      : payload.players.length === 2
+        ? payload.players.slice(0, 2)
+        : payload.players
+
+  if (payload.mode === 'duel' && normalizedPlayers.length !== 2) {
+    throw new Error('Duel mode requires exactly 2 players.')
+  }
+
+  if (payload.mode === 'multiplayer' && normalizedPlayers.length < 3) {
+    throw new Error('Multiplayer mode requires at least 3 players.')
+  }
+
+  const rungSequence = getRungSequence(normalizedPlayers.length)
 
   return {
     id: payload.id,
     mode: payload.mode,
-    players: payload.players,
+    players: normalizedPlayers,
     rungSequence,
     currentRungIndex: 0,
     currentHandSize: getHandSizeAtIndex(rungSequence, 0),
-    dealerSeat: normalizeDealerSeat(payload.dealerSeat, payload.players.length),
+    dealerSeat: normalizeDealerSeat(payload.dealerSeat, normalizedPlayers.length),
     trump: null,
     currentHand: null,
-    scoresByPlayer: createZeroMap(payload.players),
-    bagsByPlayer: createZeroMap(payload.players),
+    scoresByPlayer: createZeroMap(normalizedPlayers),
+    bagsByPlayer: createZeroMap(normalizedPlayers),
     history: [],
     isComplete: false,
   }

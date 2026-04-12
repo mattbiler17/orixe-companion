@@ -1,11 +1,23 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { JewelBox, JewelButton } from '../../components/ui'
 import { createSessionState } from '../../engine/sessionReducer'
 import type { GameMode, Player } from '../../models/orixe'
 import { nextId } from '../../lib/ids'
 import useSession from '../../hooks/useSession'
 
-const playerCountOptions = [2, 3, 4, 5]
+const MULTIPLAYER_PLAYER_COUNT_OPTIONS = [3, 4, 5] as const
+const DUEL_PLAYER_COUNT = 2
+
+function getValidPlayerCount(mode: GameMode, requestedCount: number): number {
+  if (mode === 'duel') {
+    return DUEL_PLAYER_COUNT
+  }
+
+  return MULTIPLAYER_PLAYER_COUNT_OPTIONS.includes(requestedCount as (typeof MULTIPLAYER_PLAYER_COUNT_OPTIONS)[number])
+    ? requestedCount
+    : MULTIPLAYER_PLAYER_COUNT_OPTIONS[0]
+}
 
 function createPlayerDrafts(count: number): string[] {
   return Array.from({ length: count }, (_, index) => `Player ${index + 1}`)
@@ -20,26 +32,27 @@ export default function SetupScreen() {
   const [dealerSeat, setDealerSeat] = useState<number>(0)
   const [error, setError] = useState<string | null>(null)
 
-  const effectivePlayerCount = mode === 'duel' ? 2 : playerCount
+  const effectivePlayerCount = getValidPlayerCount(mode, playerCount)
+  const playerCountOptions = mode === 'duel' ? [DUEL_PLAYER_COUNT] : MULTIPLAYER_PLAYER_COUNT_OPTIONS
   const dealerOptions = useMemo(
     () => Array.from({ length: effectivePlayerCount }, (_, index) => index),
     [effectivePlayerCount],
   )
 
-  function updatePlayerCount(nextCount: number) {
-    setPlayerCount(nextCount)
-    setDealerSeat((currentSeat) => Math.min(currentSeat, nextCount - 1))
+  function updatePlayerCount(nextCount: number, nextMode: GameMode = mode) {
+    const validCount = getValidPlayerCount(nextMode, nextCount)
+
+    setPlayerCount(validCount)
+    setDealerSeat((currentSeat) => Math.min(currentSeat, validCount - 1))
     setPlayerNames((currentNames) => {
-      const nextNames = createPlayerDrafts(nextCount)
+      const nextNames = createPlayerDrafts(validCount)
       return nextNames.map((fallbackName, index) => currentNames[index] ?? fallbackName)
     })
   }
 
   function handleModeChange(nextMode: GameMode) {
     setMode(nextMode)
-    if (nextMode === 'duel') {
-      updatePlayerCount(2)
-    }
+    updatePlayerCount(playerCount, nextMode)
   }
 
   function handlePlayerNameChange(index: number, value: string) {
@@ -78,11 +91,11 @@ export default function SetupScreen() {
 
   return (
     <section className="app-screen">
-      <div className="orixe-braid-panel">
+      <div className="orixe-panel">
         <div className="orixe-panel-body app-stack">
-          <p className="app-kicker">Session Setup</p>
-          <h2 className="app-section-title">Seat The Table</h2>
-          <p className="app-copy">Choose the mode, set the opening dealer, and name the players before the first hand.</p>
+          <h2 className="app-section-title" style={{ letterSpacing: '-0.01em' }}>
+            SETUP
+          </h2>
         </div>
       </div>
 
@@ -90,62 +103,79 @@ export default function SetupScreen() {
         <div className="orixe-panel">
           <div className="orixe-panel-body app-stack">
             <p className="app-kicker">Game Shape</p>
-            <div className="orixe-field-grid">
-              <label className="orixe-field-group">
+            <div className="orixe-setup-stack">
+              <div className="orixe-setup-control">
                 <span className="orixe-label">Mode</span>
-                <select value={mode} onChange={(event) => handleModeChange(event.target.value as GameMode)} className="orixe-select">
-                  <option value="multiplayer">Multiplayer</option>
-                  <option value="duel">Duel</option>
-                </select>
-              </label>
+                <div className="orixe-setup-mode-grid">
+                  {(['multiplayer', 'duel'] as const).map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => handleModeChange(option)}
+                      className={`orixe-jewel-box orixe-jewel-box--interactive orixe-setup-choice${mode === option ? ' is-selected' : ''}`}
+                    >
+                      <span className="orixe-jewel-box__content">
+                        <span className="orixe-setup-choice-label">{option}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-              <label className="orixe-field-group">
+              <div className="orixe-setup-control">
                 <span className="orixe-label">Player Count</span>
-                <select
-                  value={effectivePlayerCount}
-                  onChange={(event) => updatePlayerCount(Number(event.target.value))}
-                  disabled={mode === 'duel'}
-                  className="orixe-select"
-                >
+                <div className="orixe-setup-count-grid">
                   {playerCountOptions.map((count) => (
-                    <option key={count} value={count}>
-                      {count} Players
-                    </option>
+                    <button
+                      key={count}
+                      type="button"
+                      onClick={() => updatePlayerCount(count)}
+                      className={`orixe-jewel-box orixe-jewel-box--interactive orixe-setup-choice orixe-setup-choice--compact${effectivePlayerCount === count ? ' is-selected' : ''}`}
+                    >
+                      <span className="orixe-jewel-box__content">
+                        <span className="orixe-setup-choice-value">{count}</span>
+                      </span>
+                    </button>
                   ))}
-                </select>
-              </label>
+                </div>
+              </div>
 
-              <label className="orixe-field-group">
+              <div className="orixe-setup-control">
                 <span className="orixe-label">Starting Dealer</span>
-                <select
-                  value={dealerSeat}
-                  onChange={(event) => setDealerSeat(Number(event.target.value))}
-                  className="orixe-select"
-                >
+                <div className="orixe-setup-dealer-grid">
                   {dealerOptions.map((seat) => (
-                    <option key={seat} value={seat}>
-                      Seat {seat + 1}: {playerNames[seat]}
-                    </option>
+                    <button
+                      key={seat}
+                      type="button"
+                      onClick={() => setDealerSeat(seat)}
+                      className={`orixe-jewel-box orixe-jewel-box--interactive orixe-setup-choice${dealerSeat === seat ? ' is-selected' : ''}`}
+                    >
+                      <span className="orixe-jewel-box__content">
+                        <span className="orixe-setup-choice-label">Player {seat + 1}</span>
+                        <span className="orixe-setup-choice-meta">{playerNames[seat]}</span>
+                      </span>
+                    </button>
                   ))}
-                </select>
-              </label>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <div className="orixe-panel">
           <div className="orixe-panel-body app-stack">
-            <p className="app-kicker">Players</p>
-            <div className="orixe-field-grid">
+            <div className="orixe-setup-name-list">
               {playerNames.slice(0, effectivePlayerCount).map((name, index) => (
-                <label className="orixe-field-group" key={index}>
-                  <span className="orixe-label">Player {index + 1}</span>
-                  <input
-                    value={name}
-                    onChange={(event) => handlePlayerNameChange(index, event.target.value)}
-                    className="orixe-input"
-                  />
-                </label>
+                <JewelBox key={index} className="orixe-setup-name-box">
+                  <label className="orixe-jewel-subbox">
+                    <span className="orixe-jewel-subbox-label">Player {index + 1}</span>
+                    <input
+                      value={name}
+                      onChange={(event) => handlePlayerNameChange(index, event.target.value)}
+                      className="orixe-input orixe-input-jewel orixe-input-jewel-plain"
+                    />
+                  </label>
+                </JewelBox>
               ))}
             </div>
           </div>
@@ -154,10 +184,10 @@ export default function SetupScreen() {
 
       <div className="orixe-panel">
         <div className="orixe-panel-body app-stack">
-          {error ? <p className="orixe-error app-copy">{error}</p> : <p className="app-copy">Session creation uses the current v1 flow and keeps the setup lightweight.</p>}
-          <button onClick={handleCreateSession} className="orixe-button orixe-button-full">
-            Create Session
-          </button>
+          {error ? <p className="orixe-error app-copy">{error}</p> : null}
+          <JewelButton onClick={handleCreateSession}>
+            Start
+          </JewelButton>
         </div>
       </div>
     </section>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { JewelBox, JewelButton } from '../../components/ui'
 import { sessionReducer, type CurrentDuelHandDraft, type CurrentMultiplayerHandDraft } from '../../engine/sessionReducer'
 import type { Suit } from '../../models/orixe'
 import { SUITS } from '../../models/orixe'
@@ -39,10 +40,9 @@ export default function BidEntryScreen() {
   if (!session.id || session.players.length === 0 || session.currentHandSize === null) {
     return (
       <section className="app-screen">
-        <div className="orixe-braid-panel">
+        <div className="orixe-panel">
           <div className="orixe-panel-body app-stack">
             <h2 className="app-section-title">No Hand Ready</h2>
-            <p className="app-copy">Create or resume a session before starting a hand.</p>
           </div>
         </div>
       </section>
@@ -121,112 +121,99 @@ export default function BidEntryScreen() {
 
   return (
     <section className="app-screen">
-      <div className="orixe-braid-panel">
-        <div className="orixe-panel-body app-stack">
-          <p className="app-kicker">Pre-Hand Entry</p>
-          <h2 className="app-section-title">Name Trump And Lock The Bids</h2>
+      <JewelBox className="orixe-prehand-header">
+        <div className="app-stack">
+          <h2 className="app-section-title">Lock The Bid</h2>
           <div className="orixe-inline-meta">
             <span className="orixe-meta-chip">Mode {session.mode}</span>
             <span className="orixe-meta-chip">Hand Size {session.currentHandSize}</span>
           </div>
         </div>
-      </div>
+      </JewelBox>
 
-      <div className="orixe-trump-panel">
-        <div className="orixe-panel-body app-stack">
-          <p className="app-kicker">Trump</p>
-          <label className="orixe-field-group">
-            <span className="orixe-label">Current Hand Trump</span>
-            <select value={trump} onChange={(event) => setTrump(event.target.value as Suit | '')} className="orixe-select">
-              <option value="">Choose Trump</option>
-              {SUITS.map((suit) => (
-                <option key={suit} value={suit}>
-                  {suit}
-                </option>
-              ))}
-            </select>
-          </label>
-          {trump ? (
-            <div className="orixe-badge-row">
-              <span className={`orixe-badge suit-badge suit-${trump}`}>Trump: {trump}</span>
-            </div>
-          ) : null}
-        </div>
-      </div>
-
-      {session.mode === 'multiplayer' ? (
-        <div className="orixe-panel">
-          <div className="orixe-panel-body app-stack">
-            <p className="app-kicker">Bids</p>
-            <div className="orixe-list">
-              {session.players.map((player, index) => (
-                <div className="orixe-row-card orixe-compact-row" key={player.id}>
-                  <div className="app-stack" style={{ gap: '6px' }}>
-                    <strong>{player.name}</strong>
-                    <span className="app-muted">Seat {index + 1}</span>
-                  </div>
-                  <label className="orixe-field-group">
-                    <span className="orixe-label">Bid</span>
-                    <input
-                      inputMode="numeric"
-                      value={multiplayerBids[index] ?? '0'}
-                      onChange={(event) =>
-                        setMultiplayerBids((currentBids) =>
-                          currentBids.map((currentBid, currentIndex) =>
-                            currentIndex === index ? event.target.value : currentBid,
-                          ),
-                        )
-                      }
-                      className="orixe-input"
-                    />
-                  </label>
-                  <div className="orixe-badge-row">
-                    <span className="orixe-badge">Durable score state stays on table</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <button onClick={saveMultiplayerPreHand} className="orixe-button orixe-button-full">
-              Save Trump And Bids
-            </button>
+      <JewelBox>
+        <div className="app-stack">
+          <JewelBox className="orixe-prehand-title-box" fullWidth={false}>
+            <p className="orixe-prehand-title">TRUMP</p>
+          </JewelBox>
+          <div className="orixe-prehand-suit-grid">
+            {SUITS.map((suit) => (
+              <button
+                key={suit}
+                type="button"
+                onClick={() => setTrump(suit)}
+                className={`orixe-jewel-box orixe-jewel-box--interactive orixe-suit-jewel suit-${suit}${trump === suit ? ' is-selected' : ''}`}
+              >
+                <span className="orixe-jewel-box__content">
+                  <span className={`orixe-suit-jewel-name suit-${suit}`}>{suit}</span>
+                </span>
+              </button>
+            ))}
           </div>
         </div>
+      </JewelBox>
+
+      {session.mode === 'multiplayer' ? (
+        <JewelBox>
+          <div className="app-stack">
+            <div className="orixe-prehand-list">
+              {session.players.map((player, index) => (
+                <JewelBox key={player.id} className="orixe-prehand-row">
+                  <div className="orixe-prehand-row-grid">
+                    <div className="orixe-jewel-subbox">
+                      <span className="orixe-jewel-subbox-label">Player</span>
+                      <strong>{player.name}</strong>
+                    </div>
+                    <label className="orixe-jewel-subbox">
+                      <span className="orixe-jewel-subbox-label">Bid</span>
+                      <input
+                        inputMode="numeric"
+                        value={multiplayerBids[index] ?? '0'}
+                        onChange={(event) =>
+                          setMultiplayerBids((currentBids) =>
+                            currentBids.map((currentBid, currentIndex) =>
+                              currentIndex === index ? event.target.value : currentBid,
+                            ),
+                          )
+                        }
+                        className="orixe-input orixe-input-jewel"
+                      />
+                    </label>
+                  </div>
+                </JewelBox>
+              ))}
+            </div>
+          </div>
+        </JewelBox>
       ) : (
-        <div className="orixe-panel">
-          <div className="orixe-panel-body app-stack">
-            <p className="app-kicker">Duel Contract</p>
-            <div className="orixe-field-grid">
-              <label className="orixe-field-group">
-                <span className="orixe-label">Declarer</span>
-                <select value={declarerId} onChange={(event) => setDeclarerId(event.target.value)} className="orixe-select">
+        <JewelBox>
+          <div className="app-stack">
+            <div className="orixe-prehand-duel-grid">
+              <div className="orixe-jewel-subbox">
+                <span className="orixe-jewel-subbox-label">Declarer</span>
+                <select value={declarerId} onChange={(event) => setDeclarerId(event.target.value)} className="orixe-select orixe-input-jewel">
                   {session.players.map((player) => (
                     <option key={player.id} value={player.id}>
                       {player.name}
                     </option>
                   ))}
                 </select>
-              </label>
-              <label className="orixe-field-group">
-                <span className="orixe-label">Declarer Contract</span>
+              </div>
+              <div className="orixe-jewel-subbox">
+                <span className="orixe-jewel-subbox-label">Bid</span>
                 <input
                   inputMode="numeric"
                   value={declarerContract}
                   onChange={(event) => setDeclarerContract(event.target.value)}
-                  className="orixe-input"
+                  className="orixe-input orixe-input-jewel"
                 />
-              </label>
+              </div>
             </div>
-            <p className="app-copy">
-              TODO: if duel pre-hand bidding expands beyond the declarer contract, extend the stored hand draft here.
-            </p>
-
-            <button onClick={saveDuelPreHand} className="orixe-button orixe-button-full">
-              Save Trump And Contract
-            </button>
           </div>
-        </div>
+        </JewelBox>
       )}
+
+      <JewelButton onClick={session.mode === 'multiplayer' ? saveMultiplayerPreHand : saveDuelPreHand}>Start</JewelButton>
 
       {error ? (
         <div className="orixe-panel">

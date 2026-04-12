@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap');
 @import './tokens.css';
 
 html,
@@ -12,11 +13,14 @@ body,
 
 body {
   margin: 0;
-  font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+  font-family: var(--font-ui);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 20%),
-    linear-gradient(180deg, #050607 0%, #000000 100%);
-  color: var(--text);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.012), transparent 18%),
+    radial-gradient(circle at top, rgba(250, 242, 27, 0.035), transparent 26%),
+    radial-gradient(circle at left 20%, rgba(27, 235, 248, 0.05), transparent 28%),
+    radial-gradient(circle at right 18%, rgba(0, 214, 0, 0.04), transparent 24%),
+    linear-gradient(180deg, #060606 0%, #000000 100%);
+  color: var(--text-primary);
 }
 
 a {
@@ -36,36 +40,44 @@ strong {
 
 .app-screen {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-3);
+}
+
+.app-screen--centered {
+  min-height: calc(100svh - 160px);
+  place-items: center;
 }
 
 .app-stack {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .app-section-title {
-  margin: 0 0 var(--space-2);
-  font-family: 'Trebuchet MS', 'Avenir Next', sans-serif;
-  font-size: clamp(1.45rem, 2vw, 1.9rem);
-  line-height: 1.1;
-  letter-spacing: 0.05em;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 2vw, 2rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
   text-transform: uppercase;
+  color: rgba(232, 232, 232, 0.94);
+  text-shadow: 0 0 6px rgba(27, 235, 248, 0.12);
 }
 
 .app-kicker {
-  margin: 0 0 var(--space-2);
-  color: var(--shields);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
 }
 
 .app-copy {
   margin: 0;
   color: var(--muted-strong);
-  line-height: 1.6;
+  line-height: 1.42;
+  font-size: 0.92rem;
 }
 
 .app-muted {
@@ -73,45 +85,79 @@ strong {
 }
 
 .orixe-panel {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 24%), var(--bg-panel);
-  border: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-}
-
-.orixe-braid-panel {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 22%),
-    linear-gradient(var(--bg-panel), var(--bg-panel)) padding-box,
-    repeating-linear-gradient(
-      55deg,
-      var(--braid-a) 0 8px,
-      var(--braid-b) 8px 16px,
-      var(--braid-c) 16px 24px,
-      var(--braid-b) 24px 32px
-    ) border-box;
-  border: 1px solid transparent;
-  border-radius: var(--radius-lg);
+    radial-gradient(circle at top left, rgba(27, 235, 248, 0.05), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(0, 214, 0, 0.04), transparent 30%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.022), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.012), transparent 70%),
+    var(--bg-panel);
   box-shadow: var(--shadow);
+  border: 1px solid var(--line);
 }
 
 .orixe-panel-body {
-  padding: var(--space-5);
+  padding: 18px;
 }
 
 .orixe-panel-tight {
-  padding: var(--space-4);
+  padding: 16px;
 }
 
 .orixe-hero {
+  background:
+    var(--hero-glow),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 24%),
+    var(--bg-panel);
+}
+
+.orixe-table-gradient-fill {
   position: relative;
-  overflow: hidden;
-  background: var(--hero-glow), linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 25%), var(--bg-panel);
+  min-height: 132px;
+  border-radius: inherit;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.18)),
+    linear-gradient(
+      135deg,
+      rgba(27, 235, 248, 0.68) 0%,
+      rgba(250, 242, 27, 0.6) 34%,
+      rgba(230, 0, 0, 0.54) 68%,
+      rgba(0, 214, 0, 0.58) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -24px 48px rgba(0, 0, 0, 0.16);
+}
+
+.orixe-table-gradient-fill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(80% 60% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.35) 100%),
+    radial-gradient(60% 40% at 10% 10%, rgba(0, 0, 0, 0.25), transparent 70%),
+    radial-gradient(60% 40% at 90% 10%, rgba(0, 0, 0, 0.25), transparent 70%),
+    radial-gradient(60% 40% at 10% 90%, rgba(0, 0, 0, 0.25), transparent 70%),
+    radial-gradient(60% 40% at 90% 90%, rgba(0, 0, 0, 0.25), transparent 70%);
+}
+
+.orixe-table-gradient-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(100px 60px at 30% 40%, rgba(0, 0, 0, 0.15), transparent 70%),
+    radial-gradient(120px 70px at 70% 60%, rgba(0, 0, 0, 0.15), transparent 70%);
+  opacity: 0.8;
 }
 
 .orixe-grid-2 {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-3);
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -124,22 +170,33 @@ strong {
 .orixe-inline-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: 8px;
 }
 
 .orixe-meta-chip {
-  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.03);
   color: var(--muted-strong);
-  font-size: 0.85rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .orixe-action-row {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
+  gap: var(--space-2);
+}
+
+.orixe-table-action-panel {
+  display: grid;
+  align-content: center;
+  padding-block: 22px;
 }
 
 .orixe-button,
@@ -147,27 +204,38 @@ strong {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  min-height: 54px;
-  min-width: 180px;
-  padding: 14px 18px;
+  gap: 8px;
+  min-height: 50px;
+  min-width: 176px;
+  padding: 12px 18px;
   border-radius: 999px;
   text-decoration: none;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-weight: 800;
+  letter-spacing: 0.015em;
   cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease,
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.orixe-button:hover,
+.orixe-button-secondary:hover {
+  transform: translateY(-1px);
 }
 
 .orixe-button {
-  border: 1px solid rgba(27, 235, 248, 0.35);
-  background: linear-gradient(180deg, rgba(27, 235, 248, 0.18), rgba(27, 235, 248, 0.08));
+  border: 1px solid rgba(27, 235, 248, 0.38);
+  background: linear-gradient(180deg, rgba(27, 235, 248, 0.2), rgba(27, 235, 248, 0.08));
   color: var(--text-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .orixe-button-secondary {
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text);
 }
 
@@ -175,29 +243,421 @@ strong {
   width: 100%;
 }
 
-.orixe-field-grid {
+.orixe-home-actions {
   display: grid;
-  gap: var(--space-4);
+  gap: 18px;
+  width: min(100%, 360px);
 }
 
-.orixe-field-group {
+.orixe-jewel-button,
+.orixe-jewel-box,
+.orixe-jewel-box--interactive {
+  position: relative;
+  border-radius: 14px;
+  border: 1px solid #313131;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 18%),
+    linear-gradient(180deg, #232323 0%, #1a1a1a 100%);
+  box-shadow:
+    0 18px 28px rgba(0, 0, 0, 0.34),
+    0 0 36px rgba(0, 214, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.34);
+  color: var(--text-strong);
+  overflow: hidden;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease;
+}
+
+.orixe-jewel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 68px;
+  padding: 18px 24px;
+  text-decoration: none;
+}
+
+.orixe-jewel-button::before,
+.orixe-jewel-box::before,
+.orixe-jewel-box--interactive::before {
+  content: '';
+  position: absolute;
+  inset: -18px;
+  background: radial-gradient(circle at center, rgba(0, 214, 0, 0.16) 0%, rgba(0, 214, 0, 0.05) 42%, transparent 74%);
+  filter: blur(16px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.orixe-jewel-button::after,
+.orixe-jewel-box::after,
+.orixe-jewel-box--interactive::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 13px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.015);
+  pointer-events: none;
+}
+
+.orixe-jewel-button:hover,
+.orixe-jewel-box--interactive:hover {
+  transform: translateY(-1px);
+  border-color: #3a3a3a;
+  box-shadow:
+    0 20px 30px rgba(0, 0, 0, 0.36),
+    0 0 42px rgba(0, 214, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.34);
+}
+
+.orixe-jewel-button:active,
+.orixe-jewel-box--interactive:active,
+.orixe-jewel-box--interactive.is-selected {
+  transform: translateY(1px);
+  border-color: rgba(0, 214, 0, 0.28);
+  box-shadow:
+    0 12px 18px rgba(0, 0, 0, 0.3),
+    0 0 28px rgba(0, 214, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.orixe-jewel-button:focus-visible {
+  outline: 2px solid rgba(0, 214, 0, 0.28);
+  outline-offset: 3px;
+}
+
+.orixe-jewel-button--full {
+  width: 100%;
+}
+
+.orixe-jewel-box {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+}
+
+.orixe-jewel-box--full {
+  width: 100%;
+}
+
+.orixe-jewel-box--interactive {
+  display: grid;
+  width: 100%;
+  padding: 18px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.orixe-jewel-button__label,
+.orixe-jewel-box__content {
+  position: relative;
+  z-index: 1;
+}
+
+.orixe-jewel-button__label {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.orixe-jewel-box__content {
+  display: grid;
+  gap: 12px;
+}
+
+.orixe-jewel-subbox {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(58, 58, 58, 0.9);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 18%),
+    linear-gradient(180deg, rgba(31, 31, 31, 0.96) 0%, rgba(20, 20, 20, 0.96) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 20px rgba(0, 0, 0, 0.18);
+}
+
+.orixe-jewel-subbox-label {
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.orixe-prehand-header {
+  width: 100%;
+}
+
+.orixe-setup-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.orixe-setup-control {
   display: grid;
   gap: 10px;
 }
 
-.orixe-label {
-  color: var(--muted-strong);
-  font-size: 0.85rem;
+.orixe-setup-mode-grid,
+.orixe-setup-count-grid,
+.orixe-setup-dealer-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.orixe-setup-mode-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.orixe-setup-count-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.orixe-setup-dealer-grid {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.orixe-setup-choice {
+  min-height: 72px;
+}
+
+.orixe-setup-choice .orixe-jewel-box__content {
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.orixe-setup-choice--compact {
+  min-height: 68px;
+}
+
+.orixe-setup-choice-label {
+  font-size: 0.86rem;
   font-weight: 700;
   letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.orixe-setup-choice-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.orixe-setup-choice-meta {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.orixe-setup-name-list {
+  display: grid;
+  gap: 14px;
+}
+
+.orixe-setup-name-box {
+  width: 100%;
+}
+
+.orixe-prehand-title-box {
+  justify-self: start;
+  padding: 12px 14px;
+}
+
+.orixe-prehand-title {
+  margin: 0;
+  color: rgba(232, 232, 232, 0.96);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.orixe-prehand-suit-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.orixe-suit-jewel {
+  min-height: 108px;
+}
+
+.orixe-suit-jewel .orixe-jewel-box__content {
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.orixe-suit-jewel-name {
+  text-align: center;
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.orixe-suit-jewel.is-selected .orixe-suit-jewel-name {
+  filter: brightness(1.08);
+}
+
+.orixe-prehand-list {
+  display: grid;
+  gap: 14px;
+}
+
+.orixe-results-list {
+  display: grid;
+  gap: 14px;
+}
+
+.orixe-prehand-row {
+  width: 100%;
+}
+
+.orixe-prehand-row-grid,
+.orixe-prehand-duel-grid,
+.orixe-results-row-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 14px;
+}
+
+.orixe-prehand-row-grid,
+.orixe-prehand-duel-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.orixe-results-row-grid {
+  grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(124px, 0.9fr));
+}
+
+.orixe-results-row-grid--duel-defender {
+  grid-template-columns: minmax(0, 1.2fr) minmax(124px, 0.9fr);
+}
+
+.orixe-results-cache-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+}
+
+.orixe-results-choice-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(140px, 1fr));
+  justify-content: center;
+}
+
+.orixe-results-choice {
+  min-height: 58px;
+}
+
+.orixe-results-choice .orixe-jewel-box__content {
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.orixe-results-choice-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.orixe-summary-trump-box {
+  padding: 6px;
+}
+
+.orixe-summary-section-kicker {
+  margin: 0;
+  color: rgba(232, 232, 232, 0.96);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.orixe-summary-trump-badge {
+  min-height: 44px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+
+.orixe-input-jewel {
+  min-height: 52px;
+  border-color: rgba(58, 58, 58, 0.9);
+  background: rgba(10, 10, 10, 0.55);
+}
+
+.orixe-input-jewel-plain {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-primary);
+  box-shadow: none;
+}
+
+.orixe-input-jewel-plain:focus {
+  outline: none;
+  border: 0;
+}
+
+.orixe-field-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.orixe-field-grid-2 {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.orixe-field-grid-3 {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.orixe-field-group {
+  display: grid;
+  gap: 7px;
+}
+
+.orixe-label {
+  color: var(--muted-strong);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .orixe-input,
 .orixe-select {
   width: 100%;
-  min-height: 52px;
-  padding: 14px 16px;
+  min-height: 46px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--bg-panel-2);
@@ -206,81 +666,75 @@ strong {
 
 .orixe-input:focus,
 .orixe-select:focus {
-  outline: 2px solid rgba(27, 235, 248, 0.25);
-  border-color: rgba(27, 235, 248, 0.5);
+  outline: 2px solid rgba(27, 235, 248, 0.24);
+  outline-offset: 0;
+  border-color: rgba(27, 235, 248, 0.52);
 }
 
 .orixe-list {
   display: grid;
-  gap: var(--space-3);
+  gap: 10px;
 }
 
 .orixe-row-card {
+  position: relative;
   display: grid;
-  gap: var(--space-3);
-  padding: var(--space-4);
+  gap: 10px;
+  padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 40%), var(--bg-panel-2);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 36%), var(--bg-panel-2);
 }
 
 .orixe-compact-row {
   display: grid;
-  gap: var(--space-3);
+  gap: 12px;
   align-items: end;
-  grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(120px, 0.8fr));
+  grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(116px, 0.8fr));
+}
+
+.orixe-compact-row-4 {
+  display: grid;
+  gap: 12px;
+  align-items: end;
+  grid-template-columns: minmax(0, 1.05fr) repeat(3, minmax(104px, 0.8fr));
 }
 
 .orixe-scoreboard {
   display: grid;
-  gap: var(--space-3);
-}
-
-.orixe-score-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) repeat(2, minmax(80px, auto));
-  gap: var(--space-3);
-  align-items: center;
-  padding: 14px 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.025);
-}
-
-.orixe-score-value {
-  text-align: right;
-  font-weight: 700;
-  color: var(--text-strong);
+  gap: 10px;
 }
 
 .orixe-detail-grid {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .orixe-detail-row {
   display: grid;
-  grid-template-columns: minmax(120px, 180px) minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: minmax(118px, 150px) minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
 }
 
 .orixe-detail-label {
   color: var(--muted);
-  font-size: 0.88rem;
+  font-size: 0.76rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
 }
 
 .orixe-summary-grid {
   display: grid;
-  gap: var(--space-3);
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
 
 .orixe-summary-card {
   display: grid;
   gap: 10px;
-  padding: var(--space-4);
+  padding: 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 30%), var(--bg-panel-2);
@@ -289,59 +743,297 @@ strong {
 .orixe-badge-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .orixe-badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
+  gap: 6px;
+  padding: 6px 10px;
   border-radius: 999px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.04);
-  color: var(--muted-strong);
-  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .orixe-badge-positive {
-  border-color: rgba(0, 214, 0, 0.35);
-  color: #bbf8bb;
+  border-color: rgba(0, 214, 0, 0.36);
+  color: #b8f7b8;
 }
 
 .orixe-badge-warning {
-  border-color: rgba(250, 242, 27, 0.35);
-  color: #f9f4a1;
+  border-color: rgba(250, 242, 27, 0.4);
+  color: #fbf7a6;
 }
 
 .orixe-badge-danger {
-  border-color: rgba(230, 0, 0, 0.35);
-  color: #ffb1b1;
+  border-color: rgba(230, 0, 0, 0.38);
+  color: #ffb5b5;
+}
+
+.orixe-badge-neutral {
+  border-color: rgba(242, 242, 242, 0.18);
 }
 
 .orixe-delta-positive {
-  color: #9cf39c;
+  color: #9df49d;
 }
 
 .orixe-delta-negative {
-  color: #ff9e9e;
+  color: #ff9a9a;
 }
 
-.orixe-trump-panel {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 22%),
-    linear-gradient(var(--bg-panel-2), var(--bg-panel-2)) padding-box,
-    conic-gradient(
-      from 180deg,
-      rgba(27, 235, 248, 0.45),
-      rgba(250, 242, 27, 0.5),
-      rgba(230, 0, 0, 0.45),
-      rgba(0, 214, 0, 0.45),
-      rgba(27, 235, 248, 0.45)
-    ) border-box;
-  border: 1px solid transparent;
+.orixe-error {
+  color: #ffbdbd;
+}
+
+.orixe-table-shell {
+  display: grid;
+  gap: 12px;
+}
+
+.orixe-kv-grid {
+  display: grid;
+  gap: 8px 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.orixe-kv-card {
+  padding: 12px 14px;
   border-radius: var(--radius-md);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.orixe-kv-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.orixe-kv-value {
+  margin-top: 6px;
+  color: var(--text-strong);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.orixe-table-strips {
+  display: grid;
+  gap: 10px;
+}
+
+.orixe-score-strip {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(96px, 110px) minmax(72px, 84px) auto;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015), transparent 24%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent 42%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 60%),
+    var(--bg-panel-2);
+}
+
+.orixe-score-strip::before {
+  content: '';
+  position: absolute;
+  inset: 8px auto 8px 0;
+  width: 2px;
+  border-radius: 999px;
+  background: rgba(27, 235, 248, 0.2);
+  opacity: 0.85;
+}
+
+.orixe-score-strip:nth-child(4n + 1)::before {
+  background: rgba(27, 235, 248, 0.2);
+}
+
+.orixe-score-strip:nth-child(4n + 2)::before {
+  background: rgba(250, 242, 27, 0.18);
+}
+
+.orixe-score-strip:nth-child(4n + 3)::before {
+  background: rgba(230, 0, 0, 0.16);
+}
+
+.orixe-score-strip:nth-child(4n)::before {
+  background: rgba(0, 214, 0, 0.18);
+}
+
+.orixe-score-strip.is-active {
+  box-shadow:
+    inset 0 0 0 1px rgba(27, 235, 248, 0.18),
+    0 0 26px rgba(27, 235, 248, 0.08),
+    0 0 18px rgba(250, 242, 27, 0.05);
+}
+
+.orixe-score-strip-name {
+  display: grid;
+  gap: 4px;
+}
+
+.orixe-score-strip-player {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.orixe-score-strip-meta {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.orixe-score-strip-score {
+  text-align: right;
+}
+
+.orixe-score-strip-score strong {
+  display: block;
+  font-size: 1.7rem;
+  line-height: 1;
+  font-family: var(--font-display);
+  letter-spacing: -0.04em;
+}
+
+.orixe-score-strip-score span,
+.orixe-score-strip-bags {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.orixe-score-strip-bags {
+  text-align: right;
+}
+
+.orixe-status-row {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.orixe-judgment-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.orixe-judgment-card {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.028), transparent 30%), var(--bg-panel);
+}
+
+.orixe-judgment-card strong {
+  font-size: 1rem;
+}
+
+.orixe-row-card.is-muted,
+.orixe-judgment-card.is-muted {
+  opacity: 0.62;
+}
+
+.orixe-result-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.orixe-summary-section-title {
+  margin: 0 0 2px;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.orixe-summary-stat {
+  display: grid;
+  gap: 4px;
+}
+
+.orixe-summary-stat-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.orixe-summary-stat-value {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.orixe-summary-prime {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.orixe-summary-prime-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.orixe-summary-prime-arrow {
+  color: var(--muted);
+}
+
+.orixe-bullet-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted-strong);
+  line-height: 1.45;
+}
+
+.orixe-bullet-list li + li {
+  margin-top: 8px;
+}
+
+.orixe-rules-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.orixe-rules-section {
+  display: grid;
+  gap: 10px;
+}
+
+.orixe-rules-section h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.orixe-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
 }
 
 .suit-wheels {
@@ -360,46 +1052,80 @@ strong {
   color: var(--stars);
 }
 
+.suit-badge {
+  text-transform: capitalize;
+}
+
 .suit-badge.suit-wheels {
-  border-color: rgba(27, 235, 248, 0.4);
-  background: rgba(27, 235, 248, 0.1);
+  border-color: rgba(27, 235, 248, 0.42);
+  background: rgba(27, 235, 248, 0.11);
 }
 
 .suit-badge.suit-shields {
-  border-color: rgba(250, 242, 27, 0.4);
-  background: rgba(250, 242, 27, 0.08);
+  border-color: rgba(250, 242, 27, 0.42);
+  background: rgba(250, 242, 27, 0.09);
 }
 
 .suit-badge.suit-swords {
-  border-color: rgba(230, 0, 0, 0.4);
-  background: rgba(230, 0, 0, 0.1);
+  border-color: rgba(230, 0, 0, 0.42);
+  background: rgba(230, 0, 0, 0.11);
 }
 
 .suit-badge.suit-stars {
-  border-color: rgba(0, 214, 0, 0.4);
-  background: rgba(0, 214, 0, 0.1);
+  border-color: rgba(0, 214, 0, 0.42);
+  background: rgba(0, 214, 0, 0.11);
 }
 
-.orixe-error {
-  color: #ffb1b1;
+@media (max-width: 900px) {
+  .orixe-grid-2,
+  .orixe-grid-3,
+  .orixe-field-grid-2,
+  .orixe-field-grid-3,
+  .orixe-judgment-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .orixe-trump-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .orixe-prehand-suit-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .orixe-setup-dealer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 800px) {
-  .orixe-grid-2,
-  .orixe-grid-3,
   .orixe-compact-row,
-  .orixe-score-row,
-  .orixe-detail-row {
+  .orixe-compact-row-4,
+  .orixe-score-strip,
+  .orixe-detail-row,
+  .orixe-kv-grid,
+  .orixe-prehand-row-grid,
+  .orixe-prehand-duel-grid,
+  .orixe-results-row-grid,
+  .orixe-results-cache-grid {
     grid-template-columns: 1fr;
   }
 
   .orixe-panel-body,
   .orixe-panel-tight {
-    padding: var(--space-4);
+    padding: 16px;
+  }
+
+  .orixe-score-strip-score,
+  .orixe-score-strip-bags,
+  .orixe-status-row {
+    text-align: left;
+    justify-content: flex-start;
   }
 
   .orixe-button,
-  .orixe-button-secondary {
+  .orixe-button-secondary,
+  .orixe-jewel-button--full {
     width: 100%;
   }
 }
