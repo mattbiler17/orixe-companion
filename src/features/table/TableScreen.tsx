@@ -64,7 +64,9 @@ export default function TableScreen() {
         <div className="orixe-panel">
           <div className="orixe-panel-body orixe-table-action-panel">
             {!session.isComplete ? (
-              <JewelButton to={session.currentHand ? '/results' : '/bids'}>Start</JewelButton>
+              <JewelButton to={session.currentHand ? '/results' : '/bids'}>
+                {session.currentHand ? 'Post Hand' : 'Lock Bid'}
+              </JewelButton>
             ) : null}
           </div>
         </div>

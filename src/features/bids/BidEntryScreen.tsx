@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { JewelBox, JewelButton } from '../../components/ui'
+import { JewelBox, JewelButton, JewelChoiceButton, NumericInput } from '../../components/ui'
+import { normalizeWholeNumberInput } from '../../components/ui/NumericInput.utils'
 import { sessionReducer, type CurrentDuelHandDraft, type CurrentMultiplayerHandDraft } from '../../engine/sessionReducer'
 import type { Suit } from '../../models/orixe'
 import { SUITS } from '../../models/orixe'
@@ -16,7 +17,7 @@ function parseWholeNumber(value: string): number {
 }
 
 function createBidDrafts(playerCount: number): string[] {
-  return Array.from({ length: playerCount }, () => '0')
+  return Array.from({ length: playerCount }, () => '')
 }
 
 export default function BidEntryScreen() {
@@ -33,7 +34,7 @@ export default function BidEntryScreen() {
     existingDuelHand?.declarerId ?? session.players[0]?.id ?? '',
   )
   const [declarerContract, setDeclarerContract] = useState<string>(
-    existingDuelHand ? String(existingDuelHand.declarerContract) : '0',
+    existingDuelHand ? String(existingDuelHand.declarerContract) : '',
   )
   const [error, setError] = useState<string | null>(null)
 
@@ -123,6 +124,7 @@ export default function BidEntryScreen() {
     <section className="app-screen">
       <JewelBox className="orixe-prehand-header">
         <div className="app-stack">
+          <p className="app-kicker">Pre-Hand</p>
           <h2 className="app-section-title">Lock The Bid</h2>
           <div className="orixe-inline-meta">
             <span className="orixe-meta-chip">Mode {session.mode}</span>
@@ -138,16 +140,14 @@ export default function BidEntryScreen() {
           </JewelBox>
           <div className="orixe-prehand-suit-grid">
             {SUITS.map((suit) => (
-              <button
+              <JewelChoiceButton
                 key={suit}
-                type="button"
                 onClick={() => setTrump(suit)}
-                className={`orixe-jewel-box orixe-jewel-box--interactive orixe-suit-jewel suit-${suit}${trump === suit ? ' is-selected' : ''}`}
+                isSelected={trump === suit}
+                className={`orixe-suit-jewel suit-${suit}`}
               >
-                <span className="orixe-jewel-box__content">
-                  <span className={`orixe-suit-jewel-name suit-${suit}`}>{suit}</span>
-                </span>
-              </button>
+                <span className={`orixe-suit-jewel-name suit-${suit}`}>{suit}</span>
+              </JewelChoiceButton>
             ))}
           </div>
         </div>
@@ -162,21 +162,23 @@ export default function BidEntryScreen() {
                   <div className="orixe-prehand-row-grid">
                     <div className="orixe-jewel-subbox">
                       <span className="orixe-jewel-subbox-label">Player</span>
-                      <strong>{player.name}</strong>
+                      <strong className="orixe-entry-player">{player.name}</strong>
                     </div>
                     <label className="orixe-jewel-subbox">
                       <span className="orixe-jewel-subbox-label">Bid</span>
-                      <input
-                        inputMode="numeric"
-                        value={multiplayerBids[index] ?? '0'}
-                        onChange={(event) =>
+                      <NumericInput
+                        aria-label={`${player.name} bid`}
+                        placeholder="0"
+                        value={multiplayerBids[index] ?? ''}
+                        onValueChange={(value) =>
                           setMultiplayerBids((currentBids) =>
                             currentBids.map((currentBid, currentIndex) =>
-                              currentIndex === index ? event.target.value : currentBid,
+                              currentIndex === index ? value : currentBid,
                             ),
                           )
                         }
-                        className="orixe-input orixe-input-jewel"
+                        normalizeOnBlur={normalizeWholeNumberInput}
+                        className="orixe-input orixe-input-jewel orixe-entry-value"
                       />
                     </label>
                   </div>
@@ -201,11 +203,13 @@ export default function BidEntryScreen() {
               </div>
               <div className="orixe-jewel-subbox">
                 <span className="orixe-jewel-subbox-label">Bid</span>
-                <input
-                  inputMode="numeric"
+                <NumericInput
+                  aria-label="Declarer bid"
+                  placeholder="0"
                   value={declarerContract}
-                  onChange={(event) => setDeclarerContract(event.target.value)}
-                  className="orixe-input orixe-input-jewel"
+                  onValueChange={setDeclarerContract}
+                  normalizeOnBlur={normalizeWholeNumberInput}
+                  className="orixe-input orixe-input-jewel orixe-entry-value"
                 />
               </div>
             </div>
@@ -213,7 +217,7 @@ export default function BidEntryScreen() {
         </JewelBox>
       )}
 
-      <JewelButton onClick={session.mode === 'multiplayer' ? saveMultiplayerPreHand : saveDuelPreHand}>Start</JewelButton>
+      <JewelButton onClick={session.mode === 'multiplayer' ? saveMultiplayerPreHand : saveDuelPreHand}>Lock Bid</JewelButton>
 
       {error ? (
         <div className="orixe-panel">

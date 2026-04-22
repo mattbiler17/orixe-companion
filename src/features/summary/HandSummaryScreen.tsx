@@ -89,46 +89,46 @@ export default function HandSummaryScreen() {
           ]
         })()
 
+  const leadingTotal = Math.max(...summaryRows.map((row) => row.updatedTotal))
+
   return (
     <section className="app-screen">
-      <JewelBox>
+      <JewelBox className="orixe-screen-header orixe-summary-hero">
         <div className="app-stack">
+          <p className="app-kicker">Hand Summary</p>
           <h2 className="app-section-title">Summary</h2>
           <div className="orixe-inline-meta">
             <span className="orixe-meta-chip">Rung {latestEntry.input.handSize ?? latestEntry.handId}</span>
-          </div>
-        </div>
-      </JewelBox>
-
-      <JewelBox className="orixe-summary-trump-box">
-        <div className="app-stack">
-          <p className="orixe-summary-section-kicker">Trump</p>
-          <div className="orixe-badge-row">
             {latestEntry.input.trump ? (
               <span className={`orixe-badge suit-badge suit-${latestEntry.input.trump} orixe-summary-trump-badge`}>
                 {latestEntry.input.trump}
               </span>
-            ) : (
-              <span className="orixe-badge">Unset</span>
-            )}
+            ) : null}
           </div>
+        </div>
+        <div className="orixe-summary-total">
+          <span className="orixe-summary-total-label">Top Total</span>
+          <span className="orixe-summary-total-value">{leadingTotal}</span>
         </div>
       </JewelBox>
 
       <JewelBox>
         <div className="app-stack">
-          <p className="app-kicker">Bids</p>
+          <p className="app-kicker">Contracts</p>
           <div className="orixe-judgment-grid">
             {summaryRows.map((row) => (
               <div key={`${row.playerId}-contract`} className="orixe-judgment-card">
-                <strong>{row.label}</strong>
+                <div className="orixe-summary-card-accent">
+                  <strong>{row.label}</strong>
+                  <span className="orixe-summary-stat-value">{row.contractStatus}</span>
+                </div>
                 <div className="orixe-badge-row">
                   <span className="orixe-badge">Bid {row.bidLabel}</span>
                   <span className="orixe-badge">Tricks {row.tricksLabel}</span>
                 </div>
                 <div className="orixe-summary-stat">
-                  <span className="orixe-summary-stat-label">Verdict</span>
-                  <span className="orixe-summary-stat-value">{row.contractStatus}</span>
+                  <span className="orixe-summary-stat-label">Result</span>
+                  <span className="app-muted">{row.showBags ? `Bags ${row.newBagTotal}` : 'No bags tracked'}</span>
                 </div>
               </div>
             ))}
@@ -138,7 +138,7 @@ export default function HandSummaryScreen() {
 
       <JewelBox>
         <div className="app-stack">
-          <p className="app-kicker">Score</p>
+          <p className="app-kicker">Totals</p>
           <div className="orixe-judgment-grid">
             {summaryRows.map((row) => (
               <div key={`${row.playerId}-score`} className="orixe-judgment-card">

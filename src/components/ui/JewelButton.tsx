@@ -22,7 +22,10 @@ export default function JewelButton(props: JewelButtonProps) {
   const resolvedClassName = `orixe-jewel-button${fullWidth ? ' orixe-jewel-button--full' : ''}${className ? ` ${className}` : ''}`
 
   if (isLinkButton(props)) {
-    const { className: _className, fullWidth: _fullWidth, children: _children, ...linkProps } = props
+    const linkProps = { ...props }
+    delete linkProps.className
+    delete linkProps.fullWidth
+    delete linkProps.children
     return (
       <Link {...linkProps} className={resolvedClassName}>
         <span className="orixe-jewel-button__label">{children}</span>
@@ -30,7 +33,10 @@ export default function JewelButton(props: JewelButtonProps) {
     )
   }
 
-  const { className: _className, fullWidth: _fullWidth, children: _children, ...buttonProps } = props
+  const buttonProps = { ...props }
+  delete buttonProps.className
+  delete buttonProps.fullWidth
+  delete buttonProps.children
 
   return (
     <button {...buttonProps} className={resolvedClassName} type={buttonProps.type ?? 'button'}>

@@ -60,15 +60,16 @@ strong {
   line-height: 1.04;
   letter-spacing: -0.035em;
   text-transform: uppercase;
-  color: rgba(232, 232, 232, 0.94);
+  font-weight: 800;
+  color: rgba(232, 232, 232, 0.96);
   text-shadow: 0 0 6px rgba(27, 235, 248, 0.12);
 }
 
 .app-kicker {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--muted-strong);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: var(--type-label-weight);
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
@@ -180,9 +181,9 @@ strong {
   border: 1px solid var(--line);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.03);
-  color: var(--muted-strong);
+  color: #d2d2d2;
   font-size: 0.76rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -251,20 +252,20 @@ strong {
 
 .orixe-jewel-button,
 .orixe-jewel-box,
-.orixe-jewel-box--interactive {
+.orixe-jewel-box--interactive,
+.orixe-jewel-subbox,
+.orixe-row-card,
+.orixe-summary-card,
+.orixe-kv-card,
+.orixe-score-strip,
+.orixe-judgment-card {
   position: relative;
-  border-radius: 14px;
-  border: 1px solid #313131;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 18%),
-    linear-gradient(180deg, #232323 0%, #1a1a1a 100%);
-  box-shadow:
-    0 18px 28px rgba(0, 0, 0, 0.34),
-    0 0 36px rgba(0, 214, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.34);
-  color: var(--text-strong);
   overflow: hidden;
+  border-radius: var(--jewel-radius);
+  border: 1px solid var(--jewel-border);
+  background: var(--jewel-surface);
+  box-shadow: var(--jewel-shadow);
+  color: var(--text-strong);
   transition:
     transform 150ms ease,
     box-shadow 150ms ease,
@@ -282,11 +283,18 @@ strong {
 
 .orixe-jewel-button::before,
 .orixe-jewel-box::before,
-.orixe-jewel-box--interactive::before {
+.orixe-jewel-box--interactive::before,
+.orixe-jewel-subbox::before,
+.orixe-row-card::before,
+.orixe-summary-card::before,
+.orixe-kv-card::before,
+.orixe-judgment-card::before {
   content: '';
   position: absolute;
   inset: -18px;
-  background: radial-gradient(circle at center, rgba(0, 214, 0, 0.16) 0%, rgba(0, 214, 0, 0.05) 42%, transparent 74%);
+  background:
+    radial-gradient(circle at 16% 18%, rgba(27, 235, 248, 0.12), transparent 34%),
+    radial-gradient(circle at 82% 82%, rgba(0, 214, 0, 0.08), transparent 34%);
   filter: blur(16px);
   z-index: 0;
   pointer-events: none;
@@ -294,11 +302,17 @@ strong {
 
 .orixe-jewel-button::after,
 .orixe-jewel-box::after,
-.orixe-jewel-box--interactive::after {
+.orixe-jewel-box--interactive::after,
+.orixe-jewel-subbox::after,
+.orixe-row-card::after,
+.orixe-summary-card::after,
+.orixe-kv-card::after,
+.orixe-score-strip::after,
+.orixe-judgment-card::after {
   content: '';
   position: absolute;
   inset: 1px;
-  border-radius: 13px;
+  border-radius: var(--jewel-radius-inner);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
     inset 0 0 0 1px rgba(255, 255, 255, 0.015);
@@ -306,29 +320,27 @@ strong {
 }
 
 .orixe-jewel-button:hover,
-.orixe-jewel-box--interactive:hover {
+.orixe-jewel-box--interactive:hover,
+.orixe-score-strip:hover,
+.orixe-judgment-card:hover {
   transform: translateY(-1px);
-  border-color: #3a3a3a;
-  box-shadow:
-    0 20px 30px rgba(0, 0, 0, 0.36),
-    0 0 42px rgba(0, 214, 0, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.34);
+  border-color: var(--jewel-border-strong);
+  box-shadow: var(--jewel-shadow-hover);
 }
 
 .orixe-jewel-button:active,
 .orixe-jewel-box--interactive:active,
-.orixe-jewel-box--interactive.is-selected {
+.orixe-jewel-box--interactive.is-selected,
+.orixe-score-strip.is-active {
   transform: translateY(1px);
-  border-color: rgba(0, 214, 0, 0.28);
-  box-shadow:
-    0 12px 18px rgba(0, 0, 0, 0.3),
-    0 0 28px rgba(0, 214, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  border-color: var(--jewel-border-active);
+  box-shadow: var(--jewel-shadow-pressed);
 }
 
-.orixe-jewel-button:focus-visible {
+.orixe-jewel-button:focus-visible,
+.orixe-jewel-box--interactive:focus-visible,
+.orixe-input:focus,
+.orixe-select:focus {
   outline: 2px solid rgba(0, 214, 0, 0.28);
   outline-offset: 3px;
 }
@@ -340,7 +352,7 @@ strong {
 .orixe-jewel-box {
   display: grid;
   gap: 12px;
-  padding: 18px;
+  padding: var(--jewel-padding);
 }
 
 .orixe-jewel-box--full {
@@ -350,7 +362,7 @@ strong {
 .orixe-jewel-box--interactive {
   display: grid;
   width: 100%;
-  padding: 18px;
+  padding: var(--jewel-padding);
   cursor: pointer;
   text-align: left;
 }
@@ -362,9 +374,11 @@ strong {
 }
 
 .orixe-jewel-button__label {
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 0.98rem;
+  font-weight: var(--type-button-weight);
+  letter-spacing: 0.04em;
   text-align: center;
+  text-transform: uppercase;
 }
 
 .orixe-jewel-box__content {
@@ -373,24 +387,16 @@ strong {
 }
 
 .orixe-jewel-subbox {
-  position: relative;
   display: grid;
   gap: 10px;
-  padding: 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(58, 58, 58, 0.9);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 18%),
-    linear-gradient(180deg, rgba(31, 31, 31, 0.96) 0%, rgba(20, 20, 20, 0.96) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 10px 20px rgba(0, 0, 0, 0.18);
+  padding: var(--jewel-padding-tight);
+  background: var(--jewel-surface-muted);
 }
 
 .orixe-jewel-subbox-label {
-  color: var(--text-secondary);
+  color: var(--muted-strong);
   font-size: 0.7rem;
-  font-weight: 800;
+  font-weight: var(--type-label-weight);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -445,14 +451,14 @@ strong {
 
 .orixe-setup-choice-label {
   font-size: 0.86rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .orixe-setup-choice-value {
   font-size: 1.4rem;
-  font-weight: 700;
+  font-weight: var(--type-value-weight);
   line-height: 1;
 }
 
@@ -479,9 +485,9 @@ strong {
 
 .orixe-prehand-title {
   margin: 0;
-  color: rgba(232, 232, 232, 0.96);
+  color: var(--muted-strong);
   font-size: 0.86rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
@@ -505,7 +511,7 @@ strong {
 .orixe-suit-jewel-name {
   text-align: center;
   font-size: clamp(1.25rem, 2vw, 1.6rem);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.04em;
   line-height: 1.1;
   text-transform: uppercase;
@@ -577,7 +583,7 @@ strong {
 
 .orixe-results-choice-label {
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -588,9 +594,9 @@ strong {
 
 .orixe-summary-section-kicker {
   margin: 0;
-  color: rgba(232, 232, 232, 0.96);
+  color: var(--muted-strong);
   font-size: 0.88rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -599,14 +605,18 @@ strong {
   min-height: 44px;
   padding: 12px 16px;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 
 .orixe-input-jewel {
   min-height: 52px;
-  border-color: rgba(58, 58, 58, 0.9);
-  background: rgba(10, 10, 10, 0.55);
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-strong);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .orixe-input-jewel-plain {
@@ -648,7 +658,7 @@ strong {
 .orixe-label {
   color: var(--muted-strong);
   font-size: 0.76rem;
-  font-weight: 800;
+  font-weight: var(--type-label-weight);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -661,14 +671,7 @@ strong {
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--bg-panel-2);
-  color: var(--text);
-}
-
-.orixe-input:focus,
-.orixe-select:focus {
-  outline: 2px solid rgba(27, 235, 248, 0.24);
-  outline-offset: 0;
-  border-color: rgba(27, 235, 248, 0.52);
+  color: var(--text-strong);
 }
 
 .orixe-list {
@@ -677,13 +680,9 @@ strong {
 }
 
 .orixe-row-card {
-  position: relative;
   display: grid;
   gap: 10px;
   padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 36%), var(--bg-panel-2);
 }
 
 .orixe-compact-row {
@@ -735,9 +734,6 @@ strong {
   display: grid;
   gap: 10px;
   padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 30%), var(--bg-panel-2);
 }
 
 .orixe-badge-row {
@@ -754,9 +750,9 @@ strong {
   border-radius: 999px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.04);
-  color: var(--text-secondary);
+  color: #d2d2d2;
   font-size: 0.74rem;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1;
   text-transform: uppercase;
 }
@@ -805,15 +801,12 @@ strong {
 
 .orixe-kv-card {
   padding: 12px 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.025);
 }
 
 .orixe-kv-label {
   color: var(--muted);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: var(--type-label-weight);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -822,7 +815,7 @@ strong {
   margin-top: 6px;
   color: var(--text-strong);
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: var(--type-value-weight);
 }
 
 .orixe-table-strips {
@@ -831,19 +824,15 @@ strong {
 }
 
 .orixe-score-strip {
-  position: relative;
   display: grid;
   gap: 10px;
   grid-template-columns: minmax(0, 1.25fr) minmax(96px, 110px) minmax(72px, 84px) auto;
   align-items: center;
   padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.015), transparent 24%),
     linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent 42%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 60%),
-    var(--bg-panel-2);
+    var(--jewel-surface);
 }
 
 .orixe-score-strip::before {
@@ -873,10 +862,7 @@ strong {
 }
 
 .orixe-score-strip.is-active {
-  box-shadow:
-    inset 0 0 0 1px rgba(27, 235, 248, 0.18),
-    0 0 26px rgba(27, 235, 248, 0.08),
-    0 0 18px rgba(250, 242, 27, 0.05);
+  border-color: var(--jewel-border-active);
 }
 
 .orixe-score-strip-name {
@@ -886,13 +872,13 @@ strong {
 
 .orixe-score-strip-player {
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: var(--type-value-weight);
 }
 
 .orixe-score-strip-meta {
   color: var(--muted);
   font-size: 0.76rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -913,7 +899,7 @@ strong {
 .orixe-score-strip-bags {
   color: var(--muted);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: var(--type-label-weight);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -936,18 +922,14 @@ strong {
 }
 
 .orixe-judgment-card {
-  position: relative;
-  overflow: hidden;
   display: grid;
-  gap: 8px;
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.028), transparent 30%), var(--bg-panel);
+  gap: 10px;
+  padding: 16px;
 }
 
 .orixe-judgment-card strong {
-  font-size: 1rem;
+  font-size: 1.05rem;
+  font-weight: var(--type-value-weight);
 }
 
 .orixe-row-card.is-muted,
@@ -976,14 +958,14 @@ strong {
 .orixe-summary-stat-label {
   color: var(--muted);
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: var(--type-label-weight);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .orixe-summary-stat-value {
-  font-size: 1.2rem;
-  font-weight: 800;
+  font-size: 1.4rem;
+  font-weight: var(--type-value-weight);
   color: var(--text-primary);
 }
 
@@ -995,11 +977,84 @@ strong {
 
 .orixe-summary-prime-value {
   font-size: 1.25rem;
-  font-weight: 800;
+  font-weight: var(--type-value-weight);
 }
 
 .orixe-summary-prime-arrow {
   color: var(--muted);
+}
+
+.orixe-screen-header {
+  width: 100%;
+}
+
+.orixe-screen-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.orixe-entry-player {
+  font-size: 1.08rem;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.orixe-entry-value {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3.5vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+}
+
+.orixe-entry-value::placeholder {
+  color: rgba(232, 232, 232, 0.26);
+}
+
+.orixe-summary-hero {
+  grid-template-columns: minmax(0, 1.4fr) auto;
+  align-items: center;
+}
+
+.orixe-summary-hero .orixe-jewel-box__content {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.orixe-summary-total {
+  display: grid;
+  gap: 4px;
+  justify-items: end;
+}
+
+.orixe-summary-total-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.orixe-summary-total-value {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+}
+
+.orixe-summary-card-accent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.orixe-results-saved-bid {
+  justify-self: start;
 }
 
 .orixe-bullet-list {
@@ -1095,6 +1150,15 @@ strong {
 
   .orixe-setup-dealer-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .orixe-summary-hero,
+  .orixe-summary-hero .orixe-jewel-box__content {
+    grid-template-columns: 1fr;
+  }
+
+  .orixe-summary-total {
+    justify-items: start;
   }
 }
 

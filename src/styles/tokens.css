@@ -20,6 +20,39 @@
   --radius-lg: 22px;
   --radius-md: 16px;
   --radius-sm: 12px;
+  --jewel-radius: 16px;
+  --jewel-radius-inner: 13px;
+  --jewel-padding: 18px;
+  --jewel-padding-tight: 14px;
+  --jewel-border: #343434;
+  --jewel-border-strong: #444444;
+  --jewel-border-active: rgba(27, 235, 248, 0.34);
+  --jewel-surface:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 18%),
+    linear-gradient(180deg, #232323 0%, #181818 100%);
+  --jewel-surface-muted:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 18%),
+    linear-gradient(180deg, rgba(31, 31, 31, 0.96) 0%, rgba(18, 18, 18, 0.96) 100%);
+  --jewel-shadow:
+    0 18px 28px rgba(0, 0, 0, 0.34),
+    0 0 34px rgba(27, 235, 248, 0.06),
+    0 0 26px rgba(0, 214, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.34);
+  --jewel-shadow-hover:
+    0 20px 30px rgba(0, 0, 0, 0.36),
+    0 0 42px rgba(27, 235, 248, 0.1),
+    0 0 30px rgba(0, 214, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.34);
+  --jewel-shadow-pressed:
+    0 12px 18px rgba(0, 0, 0, 0.3),
+    0 0 28px rgba(27, 235, 248, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  --type-label-weight: 800;
+  --type-value-weight: 800;
+  --type-button-weight: 800;
   --space-1: 6px;
   --space-2: 10px;
   --space-3: 14px;
