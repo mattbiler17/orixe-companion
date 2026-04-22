@@ -1057,6 +1057,34 @@ strong {
   justify-self: start;
 }
 
+.orixe-stats-empty {
+  min-height: 280px;
+  place-items: center;
+  text-align: center;
+}
+
+.orixe-stats-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.orixe-stats-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.orixe-stats-grid--duel {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.orixe-stats-grid--meta {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.orixe-stats-grid--multiplayer {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .orixe-bullet-list {
   margin: 0;
   padding-left: 18px;
@@ -1159,6 +1187,12 @@ strong {
 
   .orixe-summary-total {
     justify-items: start;
+  }
+
+  .orixe-stats-grid--duel,
+  .orixe-stats-grid--meta,
+  .orixe-stats-grid--multiplayer {
+    grid-template-columns: 1fr;
   }
 }
 

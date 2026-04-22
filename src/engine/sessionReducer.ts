@@ -45,6 +45,7 @@ export type SessionHistoryEntry = {
 
 export type Session = {
   id: string
+  createdAt?: string
   mode: GameMode | null
   players: Player[]
   rungSequence: number[]
@@ -61,6 +62,7 @@ export type Session = {
 
 export type CreateSessionPayload = {
   id: string
+  createdAt?: string
   mode: GameMode
   players: Player[]
   dealerSeat?: number
@@ -87,6 +89,7 @@ export type SessionAction =
 
 export const initialSession: Session = {
   id: '',
+  createdAt: undefined,
   mode: null,
   players: [],
   rungSequence: [],
@@ -227,6 +230,7 @@ export function createSessionState(payload: CreateSessionPayload): Session {
 
   return {
     id: payload.id,
+    createdAt: payload.createdAt ?? new Date().toISOString(),
     mode: payload.mode,
     players: normalizedPlayers,
     rungSequence,

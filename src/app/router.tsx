@@ -7,6 +7,7 @@ import BidEntryScreen from '../features/bids/BidEntryScreen'
 import ResultEntryScreen from '../features/results/ResultEntryScreen'
 import HandSummaryScreen from '../features/summary/HandSummaryScreen'
 import RulesScreen from '../features/rules/RulesScreen'
+import StatsScreen from '../features/stats/StatsScreen'
 
 export default function AppRouter() {
   return (
@@ -19,6 +20,7 @@ export default function AppRouter() {
           <Route path="bids" element={<BidEntryScreen />} />
           <Route path="results" element={<ResultEntryScreen />} />
           <Route path="summary" element={<HandSummaryScreen />} />
+          <Route path="stats" element={<StatsScreen />} />
           <Route path="rules" element={<RulesScreen />} />
         </Route>
       </Routes>

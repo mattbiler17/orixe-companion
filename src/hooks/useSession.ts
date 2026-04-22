@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { initialSession, type Session } from '../engine/sessionReducer'
+import { persistCompletedGameIfNeeded } from '../lib/completedGamesStorage'
 
 type SessionState = {
   session: Session
@@ -12,7 +13,11 @@ export const useSession = create<SessionState>()(
   persist(
     (set) => ({
       session: initialSession,
-      setSession: (s: Session) => set({ session: s }),
+      setSession: (s: Session) =>
+        set((state) => {
+          persistCompletedGameIfNeeded(state.session, s)
+          return { session: s }
+        }),
       reset: () => set({ session: initialSession }),
     }),
     { name: 'orixe-session' }
