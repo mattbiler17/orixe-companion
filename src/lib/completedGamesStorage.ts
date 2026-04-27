@@ -2,7 +2,7 @@ import type { Session } from '../engine/sessionReducer'
 import type { CompletedGamePlayerResult, CompletedGameRecord } from '../models/stats'
 import { load, save } from './storage'
 
-export const COMPLETED_GAMES_STORAGE_KEY = 'orixe-completed-games'
+export const COMPLETED_GAMES_STORAGE_KEY = 'completedGames'
 
 function getCompletedAt(session: Session): string {
   return session.history[session.history.length - 1]?.timestamp ?? new Date().toISOString()
@@ -95,7 +95,8 @@ export function appendCompletedGameRecord(record: CompletedGameRecord) {
     return
   }
 
-  saveCompletedGameRecords([record, ...currentRecords])
+  console.log('SAVING GAME', record)
+  saveCompletedGameRecords([...currentRecords, record])
 }
 
 export function persistCompletedGameIfNeeded(previousSession: Session, nextSession: Session) {

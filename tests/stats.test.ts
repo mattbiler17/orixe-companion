@@ -1,5 +1,12 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Session } from '../src/engine/sessionReducer'
 import type { CompletedGameRecord } from '../src/models/stats'
+import {
+  appendCompletedGameRecord,
+  COMPLETED_GAMES_STORAGE_KEY,
+  loadCompletedGameRecords,
+  persistCompletedGameIfNeeded,
+} from '../src/lib/completedGamesStorage'
 import { getDuelPairKey, summarizeCompletedGames, summarizeDuelHeadToHead } from '../src/lib/stats'
 
 function createRecord(input: Partial<CompletedGameRecord> & Pick<CompletedGameRecord, 'id'>): CompletedGameRecord {
@@ -19,6 +26,149 @@ function createRecord(input: Partial<CompletedGameRecord> & Pick<CompletedGameRe
     durationMs: input.durationMs,
   }
 }
+
+function createLocalStorageMock(): Storage {
+  const store = new Map<string, string>()
+
+  return {
+    get length() {
+      return store.size
+    },
+    clear: () => store.clear(),
+    getItem: (key: string) => store.get(key) ?? null,
+    key: (index: number) => Array.from(store.keys())[index] ?? null,
+    removeItem: (key: string) => {
+      store.delete(key)
+    },
+    setItem: (key: string, value: string) => {
+      store.set(key, value)
+    },
+  }
+}
+
+function createCompletedSession(input: { isComplete: boolean }): Session {
+  return {
+    id: 'session-1',
+    createdAt: '2026-04-01T12:00:00.000Z',
+    mode: 'duel',
+    players: [
+      { id: 'ari', name: 'Ari' },
+      { id: 'bex', name: 'Bex' },
+    ],
+    rungSequence: [1],
+    currentRungIndex: 0,
+    currentHandSize: input.isComplete ? null : 1,
+    dealerSeat: 0,
+    trump: null,
+    currentHand: null,
+    scoresByPlayer: { ari: 20, bex: 10 },
+    bagsByPlayer: { ari: 0, bex: 0 },
+    history: input.isComplete
+      ? [
+          {
+            handId: 'hand-1',
+            mode: 'duel',
+            timestamp: '2026-04-01T12:10:00.000Z',
+            summary: 'Duel hand hand-1 completed',
+            input: {
+              handId: 'hand-1',
+              declarerId: 'ari',
+              defenderId: 'bex',
+              declarerContract: 1,
+              declarerTricksWon: 1,
+              declarerPrimesCount: 0,
+              defenderPrimesCount: 0,
+              cacheWinner: 'Declarer',
+              cachePrimes: 0,
+              previousBags: 0,
+              handSize: 1,
+              trump: 'wheels',
+            },
+            result: {
+              declarer: {
+                playerId: 'ari',
+                bidScore: 10,
+                primeScore: 0,
+                cacheScore: 10,
+                bagDelta: 0,
+                bagPenalty: 0,
+                totalDelta: 20,
+                newBagTotal: 0,
+                madeContract: true,
+              },
+              defender: {
+                playerId: 'bex',
+                trickScore: 10,
+                primeScore: 0,
+                cacheScore: 0,
+                totalDelta: 10,
+              },
+            },
+          },
+        ]
+      : [],
+    isComplete: input.isComplete,
+  }
+}
+
+describe('completedGamesStorage', () => {
+  let consoleLogSpy: ReturnType<typeof vi.spyOn>
+
+  beforeEach(() => {
+    vi.stubGlobal('localStorage', createLocalStorageMock())
+    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+  })
+
+  afterEach(() => {
+    consoleLogSpy.mockRestore()
+    vi.unstubAllGlobals()
+  })
+
+  it('loads an empty completed game array when no localStorage entry exists', () => {
+    expect(loadCompletedGameRecords()).toEqual([])
+  })
+
+  it('uses the completedGames key for reads and writes', () => {
+    const record = createRecord({ id: 'g1' })
+
+    appendCompletedGameRecord(record)
+
+    expect(localStorage.getItem(COMPLETED_GAMES_STORAGE_KEY)).toBe(JSON.stringify([record]))
+    expect(localStorage.getItem('orixe-completed-games')).toBeNull()
+  })
+
+  it('appends completed games without overwriting existing records', () => {
+    const firstRecord = createRecord({ id: 'g1' })
+    const secondRecord = createRecord({ id: 'g2', winnerName: 'Bex' })
+
+    appendCompletedGameRecord(firstRecord)
+    appendCompletedGameRecord(secondRecord)
+
+    expect(loadCompletedGameRecords()).toEqual([firstRecord, secondRecord])
+  })
+
+  it('saves exactly once when a session transitions to completed', () => {
+    const previousSession = createCompletedSession({ isComplete: false })
+    const nextSession = createCompletedSession({ isComplete: true })
+
+    persistCompletedGameIfNeeded(previousSession, nextSession)
+    persistCompletedGameIfNeeded(nextSession, nextSession)
+
+    const records = loadCompletedGameRecords()
+
+    expect(records).toHaveLength(1)
+    expect(records[0]).toMatchObject({
+      id: 'session-1',
+      mode: 'duel',
+      playerNames: ['Ari', 'Bex'],
+      winnerName: 'Ari',
+      finalScores: { Ari: 20, Bex: 10 },
+    })
+    expect(localStorage.getItem(COMPLETED_GAMES_STORAGE_KEY)).toBe(JSON.stringify(records))
+    expect(consoleLogSpy).toHaveBeenCalledTimes(1)
+    expect(consoleLogSpy).toHaveBeenCalledWith('SAVING GAME', records[0])
+  })
+})
 
 describe('summarizeDuelHeadToHead', () => {
   it('aggregates wins, rates, margins, and streaks by canonical named pair', () => {
