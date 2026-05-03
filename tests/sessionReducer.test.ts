@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createSessionState, sessionReducer } from '../src/engine/sessionReducer'
+import { scoreMultiplayerHand } from '../src/engine/multiplayerScoring'
 
 describe('sessionReducer', () => {
   it('creates a new session with scores, bags, rung state, and dealer seat', () => {
@@ -249,5 +250,77 @@ describe('sessionReducer', () => {
     expect(nextState.isComplete).toBe(true)
     expect(nextState.currentHandSize).toBeNull()
     expect(nextState.dealerSeat).toBe(0)
+  })
+
+  it('replaces only the last hand and recomputes totals and bags from prior hands', () => {
+    const session = createSessionState({
+      id: 'session-4',
+      mode: 'multiplayer',
+      players: [
+        { id: 'p1', name: 'A' },
+        { id: 'p2', name: 'B' },
+        { id: 'p3', name: 'C' },
+      ],
+    })
+
+    const firstInput = {
+      handId: 'h1',
+      handSize: 3,
+      dealerId: 'p1',
+      trump: 'stars' as const,
+      players: [
+        { playerId: 'p1', bid: 1, tricksWon: 1, primesCount: 0, previousBags: 0, previousTotalPoints: 0 },
+        { playerId: 'p2', bid: 1, tricksWon: 1, primesCount: 0, previousBags: 0, previousTotalPoints: 0 },
+        { playerId: 'p3', bid: 0, tricksWon: 1, primesCount: 0, previousBags: 0, previousTotalPoints: 0 },
+      ],
+    }
+    const afterFirstHand = sessionReducer(session, {
+      type: 'APPLY_MULTIPLAYER_HAND',
+      payload: {
+        input: firstInput,
+        result: scoreMultiplayerHand(firstInput),
+        timestamp: '2026-04-06T10:00:00.000Z',
+      },
+    })
+
+    const secondInput = {
+      handId: 'h2',
+      handSize: 4,
+      dealerId: 'p2',
+      trump: 'swords' as const,
+      players: [
+        { playerId: 'p1', bid: 1, tricksWon: 2, primesCount: 0, previousBags: 0, previousTotalPoints: 3 },
+        { playerId: 'p2', bid: 0, tricksWon: 0, primesCount: 0, previousBags: 0, previousTotalPoints: 3 },
+        { playerId: 'p3', bid: 1, tricksWon: 2, primesCount: 0, previousBags: 1, previousTotalPoints: -3 },
+      ],
+    }
+    const afterSecondHand = sessionReducer(afterFirstHand, {
+      type: 'APPLY_MULTIPLAYER_HAND',
+      payload: {
+        input: secondInput,
+        result: scoreMultiplayerHand(secondInput),
+        timestamp: '2026-04-06T10:05:00.000Z',
+      },
+    })
+
+    const editedSecondInput = {
+      ...secondInput,
+      players: [
+        { playerId: 'p1', bid: 1, tricksWon: 1, primesCount: 0, previousBags: 0, previousTotalPoints: 3 },
+        { playerId: 'p2', bid: 0, tricksWon: 1, primesCount: 0, previousBags: 0, previousTotalPoints: 3 },
+        { playerId: 'p3', bid: 1, tricksWon: 2, primesCount: 0, previousBags: 1, previousTotalPoints: -3 },
+      ],
+    }
+    const editedState = sessionReducer(afterSecondHand, {
+      type: 'REPLACE_LAST_HAND',
+      payload: editedSecondInput,
+    })
+
+    expect(editedState.history).toHaveLength(2)
+    expect(editedState.history[1].input).toMatchObject(editedSecondInput)
+    expect(editedState.scoresByPlayer).toEqual({ p1: 6, p2: -1, p3: 0 })
+    expect(editedState.bagsByPlayer).toEqual({ p1: 0, p2: 1, p3: 2 })
+    expect(editedState.currentRungIndex).toBe(2)
+    expect(editedState.currentHandSize).toBe(5)
   })
 })

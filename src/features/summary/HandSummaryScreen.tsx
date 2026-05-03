@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { JewelBox, JewelButton } from '../../components/ui'
 import type { DuelHandInput, DuelHandResult, MultiplayerHandInput, MultiplayerHandResult } from '../../models/orixe'
 import useSession from '../../hooks/useSession'
@@ -19,6 +20,7 @@ function getPlayerName(playerId: string, sessionPlayers: { id: string; name: str
 }
 
 export default function HandSummaryScreen() {
+  const navigate = useNavigate()
   const session = useSession((state) => state.session)
   const latestEntry = session.history[session.history.length - 1]
 
@@ -91,6 +93,10 @@ export default function HandSummaryScreen() {
 
   const leadingTotal = Math.max(...summaryRows.map((row) => row.updatedTotal))
 
+  const handleEditLastHand = () => {
+    navigate('/post-hand', { state: { editMode: true } })
+  }
+
   return (
     <section className="app-screen">
       <JewelBox className="orixe-screen-header orixe-summary-hero">
@@ -159,7 +165,10 @@ export default function HandSummaryScreen() {
         </div>
       </JewelBox>
 
-      <JewelButton to="/table">Next Hand</JewelButton>
+      <div className="orixe-action-row">
+        <JewelButton onClick={handleEditLastHand}>Edit Last Hand</JewelButton>
+        <JewelButton to="/table">Next Hand</JewelButton>
+      </div>
     </section>
   )
 }

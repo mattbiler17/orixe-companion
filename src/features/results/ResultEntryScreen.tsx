@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { JewelBox, JewelButton, JewelChoiceButton, NumericInput } from '../../components/ui'
 import { normalizeWholeNumberInput } from '../../components/ui/NumericInput.utils'
 import { scoreDuelHand } from '../../engine/duelScoring'
 import { scoreMultiplayerHand } from '../../engine/multiplayerScoring'
-import { sessionReducer } from '../../engine/sessionReducer'
+import { sessionReducer, type CurrentHandDraft } from '../../engine/sessionReducer'
 import type { CacheWinner, DuelHandInput, MultiplayerHandInput } from '../../models/orixe'
 import useSession from '../../hooks/useSession'
 
@@ -30,22 +30,87 @@ function parseWholeNumber(value: string): number {
   return Number(value)
 }
 
+function isMultiplayerHandInput(input: MultiplayerHandInput | DuelHandInput): input is MultiplayerHandInput {
+  return 'players' in input
+}
+
+function createDraftFromInput(input: MultiplayerHandInput | DuelHandInput): CurrentHandDraft | null {
+  if (!input.handSize || !input.trump) {
+    return null
+  }
+
+  if (isMultiplayerHandInput(input)) {
+    return {
+      mode: 'multiplayer',
+      handId: input.handId,
+      handSize: input.handSize,
+      dealerId: input.dealerId,
+      trump: input.trump,
+      players: input.players.map((player) => ({
+        playerId: player.playerId,
+        bid: player.bid,
+      })),
+    }
+  }
+
+  return {
+    mode: 'duel',
+    handId: input.handId,
+    handSize: input.handSize,
+    trump: input.trump,
+    declarerId: input.declarerId,
+    defenderId: input.defenderId,
+    declarerContract: input.declarerContract,
+  }
+}
+
+function createMultiplayerDraftFromInput(
+  input: MultiplayerHandInput | DuelHandInput | null,
+  playerCount: number,
+): MultiplayerPostHandDraft[] {
+  if (input && isMultiplayerHandInput(input)) {
+    return input.players.map((player) => ({
+      tricksWon: String(player.tricksWon),
+      primesCount: String(player.primesCount),
+    }))
+  }
+
+  return createMultiplayerDraft(playerCount)
+}
+
 export default function ResultEntryScreen() {
   const navigate = useNavigate()
+  const location = useLocation()
   const session = useSession((state) => state.session)
   const setSession = useSession((state) => state.setSession)
-  const currentHand = session.currentHand
+  const { editMode = false } = (location.state as { editMode?: boolean } | null) ?? {}
+  const latestEntry = session.history[session.history.length - 1]
+  const lastHandInput = editMode ? latestEntry?.input ?? null : null
+  const currentHand = editMode && lastHandInput ? createDraftFromInput(lastHandInput) : session.currentHand
+  const handSize = currentHand?.handSize ?? session.currentHandSize
   const [error, setError] = useState<string | null>(null)
   const [multiplayerDraft, setMultiplayerDraft] = useState<MultiplayerPostHandDraft[]>(
-    () => createMultiplayerDraft(session.players.length || 2),
+    () => createMultiplayerDraftFromInput(lastHandInput, session.players.length || 2),
   )
-  const [declarerTricksWon, setDeclarerTricksWon] = useState<string>('')
-  const [declarerPrimesCount, setDeclarerPrimesCount] = useState<string>('')
-  const [defenderPrimesCount, setDefenderPrimesCount] = useState<string>('')
-  const [cacheWinner, setCacheWinner] = useState<RequiredCacheWinner | ''>('')
-  const [cachePrimes, setCachePrimes] = useState<string>('')
+  const [declarerTricksWon, setDeclarerTricksWon] = useState<string>(
+    lastHandInput && !isMultiplayerHandInput(lastHandInput) ? String(lastHandInput.declarerTricksWon) : '',
+  )
+  const [declarerPrimesCount, setDeclarerPrimesCount] = useState<string>(
+    lastHandInput && !isMultiplayerHandInput(lastHandInput) ? String(lastHandInput.declarerPrimesCount) : '',
+  )
+  const [defenderPrimesCount, setDefenderPrimesCount] = useState<string>(
+    lastHandInput && !isMultiplayerHandInput(lastHandInput) ? String(lastHandInput.defenderPrimesCount) : '',
+  )
+  const [cacheWinner, setCacheWinner] = useState<RequiredCacheWinner | ''>(
+    lastHandInput && !isMultiplayerHandInput(lastHandInput) && lastHandInput.cacheWinner !== 'None'
+      ? lastHandInput.cacheWinner ?? ''
+      : '',
+  )
+  const [cachePrimes, setCachePrimes] = useState<string>(
+    lastHandInput && !isMultiplayerHandInput(lastHandInput) ? String(lastHandInput.cachePrimes ?? 0) : '',
+  )
 
-  if (!session.id || session.players.length === 0 || session.currentHandSize === null) {
+  if (!session.id || session.players.length === 0 || handSize === null || handSize === undefined) {
     return (
       <section className="app-screen">
         <div className="orixe-panel">
@@ -70,7 +135,7 @@ export default function ResultEntryScreen() {
     )
   }
 
-  const handSize = session.currentHandSize
+  const activeHandSize = handSize
   const activeHand = currentHand
   const declarer =
     activeHand.mode === 'duel'
@@ -91,7 +156,7 @@ export default function ResultEntryScreen() {
       const input: MultiplayerHandInput = {
         handId: activeHand.handId,
         dealerId: activeHand.dealerId,
-        handSize,
+        handSize: activeHandSize,
         trump: activeHand.trump,
         players: activeHand.players.map((player, index) => ({
           playerId: player.playerId,
@@ -104,14 +169,19 @@ export default function ResultEntryScreen() {
       }
 
       const result = scoreMultiplayerHand(input)
-      const nextSession = sessionReducer(session, {
-        type: 'APPLY_MULTIPLAYER_HAND',
-        payload: {
-          input,
-          result,
-          timestamp: new Date().toISOString(),
-        },
-      })
+      const nextSession = editMode
+        ? sessionReducer(session, {
+            type: 'REPLACE_LAST_HAND',
+            payload: input,
+          })
+        : sessionReducer(session, {
+            type: 'APPLY_MULTIPLAYER_HAND',
+            payload: {
+              input,
+              result,
+              timestamp: new Date().toISOString(),
+            },
+          })
 
       setSession(nextSession)
       navigate('/summary')
@@ -149,7 +219,7 @@ export default function ResultEntryScreen() {
     }
 
     try {
-      const derivedDefenderTricks = handSize - parseWholeNumber(declarerTricksWon)
+      const derivedDefenderTricks = activeHandSize - parseWholeNumber(declarerTricksWon)
 
       if (Number.isNaN(derivedDefenderTricks) || derivedDefenderTricks < 0) {
         setError('Declarer Tricks must be between 0 and hand size.')
@@ -167,19 +237,24 @@ export default function ResultEntryScreen() {
         cacheWinner,
         cachePrimes: parsedCachePrimes,
         previousBags: session.bagsByPlayer[activeHand.declarerId] ?? 0,
-        handSize,
+        handSize: activeHandSize,
         trump: activeHand.trump,
       }
 
       const result = scoreDuelHand(input)
-      const nextSession = sessionReducer(session, {
-        type: 'APPLY_DUEL_HAND',
-        payload: {
-          input,
-          result,
-          timestamp: new Date().toISOString(),
-        },
-      })
+      const nextSession = editMode
+        ? sessionReducer(session, {
+            type: 'REPLACE_LAST_HAND',
+            payload: input,
+          })
+        : sessionReducer(session, {
+            type: 'APPLY_DUEL_HAND',
+            payload: {
+              input,
+              result,
+              timestamp: new Date().toISOString(),
+            },
+          })
 
       setSession(nextSession)
       navigate('/summary')

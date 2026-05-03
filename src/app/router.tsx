@@ -19,6 +19,7 @@ export default function AppRouter() {
           <Route path="table" element={<TableScreen />} />
           <Route path="bids" element={<BidEntryScreen />} />
           <Route path="results" element={<ResultEntryScreen />} />
+          <Route path="post-hand" element={<ResultEntryScreen />} />
           <Route path="summary" element={<HandSummaryScreen />} />
           <Route path="stats" element={<StatsScreen />} />
           <Route path="rules" element={<RulesScreen />} />

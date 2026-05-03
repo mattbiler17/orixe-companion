@@ -7,6 +7,8 @@ import type {
   Player,
   Suit,
 } from '../models/orixe'
+import { scoreDuelHand } from './duelScoring'
+import { scoreMultiplayerHand } from './multiplayerScoring'
 import { getRungSequence } from './rungs'
 
 export type CurrentMultiplayerHandDraft = {
@@ -33,6 +35,7 @@ export type CurrentDuelHandDraft = {
 }
 
 export type CurrentHandDraft = CurrentMultiplayerHandDraft | CurrentDuelHandDraft
+export type HandInput = MultiplayerHandInput | DuelHandInput
 
 export type SessionHistoryEntry = {
   handId: string
@@ -82,6 +85,7 @@ export type SessionAction =
       type: 'APPLY_DUEL_HAND'
       payload: { input: DuelHandInput; result: DuelHandResult; timestamp: string }
     }
+  | { type: 'REPLACE_LAST_HAND'; payload: HandInput }
   | { type: 'ADVANCE_RUNG' }
   | { type: 'ROTATE_DEALER' }
   | { type: 'SET_TRUMP'; payload: Suit | null }
@@ -210,6 +214,109 @@ function createDuelSummary(input: DuelHandInput): string {
   return `Duel hand ${input.handId} completed`
 }
 
+function isMultiplayerHandInput(input: HandInput): input is MultiplayerHandInput {
+  return 'players' in input
+}
+
+function getInitialDealerSeat(state: Session, hands: SessionHistoryEntry[]): number {
+  const firstInput = hands[0]?.input
+  const firstDealerId = firstInput && isMultiplayerHandInput(firstInput) ? firstInput.dealerId : undefined
+  const firstDealerSeat = state.players.findIndex((player) => player.id === firstDealerId)
+
+  if (firstDealerSeat >= 0) {
+    return firstDealerSeat
+  }
+
+  return normalizeDealerSeat(state.dealerSeat - hands.length, state.players.length)
+}
+
+function createCleanSessionStateFromSession(state: Session, hands: SessionHistoryEntry[]): Session {
+  if (!state.mode) {
+    return initialSession
+  }
+
+  return createSessionState({
+    id: state.id,
+    createdAt: state.createdAt,
+    mode: state.mode,
+    players: state.players,
+    dealerSeat: getInitialDealerSeat(state, hands),
+  })
+}
+
+function withCurrentTotals(input: MultiplayerHandInput, state: Session): MultiplayerHandInput
+function withCurrentTotals(input: DuelHandInput, state: Session): DuelHandInput
+function withCurrentTotals(input: HandInput, state: Session): HandInput {
+  if (isMultiplayerHandInput(input)) {
+    return {
+      ...input,
+      players: input.players.map((player) => ({
+        ...player,
+        previousBags: state.bagsByPlayer[player.playerId] ?? 0,
+        previousTotalPoints: state.scoresByPlayer[player.playerId] ?? 0,
+      })),
+    }
+  }
+
+  return {
+    ...input,
+    previousBags: state.bagsByPlayer[input.declarerId] ?? 0,
+  }
+}
+
+function applyHandInput(state: Session, input: HandInput, timestamp: string): Session {
+  if (isMultiplayerHandInput(input)) {
+    const inputWithTotals = withCurrentTotals(input, state)
+    const result = scoreMultiplayerHand(inputWithTotals)
+    const updatedTotals = applyMultiplayerScores(state, result)
+    const withHistory = appendHistoryEntry(
+      {
+        ...state,
+        ...updatedTotals,
+      },
+      {
+        handId: inputWithTotals.handId,
+        mode: 'multiplayer',
+        timestamp,
+        summary: createMultiplayerSummary(inputWithTotals),
+        input: inputWithTotals,
+        result,
+      },
+    )
+
+    return progressAfterHand(withHistory)
+  }
+
+  const inputWithTotals = withCurrentTotals(input, state)
+  const result = scoreDuelHand(inputWithTotals)
+  const updatedTotals = applyDuelScores(state, result)
+  const withHistory = appendHistoryEntry(
+    {
+      ...state,
+      ...updatedTotals,
+    },
+    {
+      handId: inputWithTotals.handId,
+      mode: 'duel',
+      timestamp,
+      summary: createDuelSummary(inputWithTotals),
+      input: inputWithTotals,
+      result,
+    },
+  )
+
+  return progressAfterHand(withHistory)
+}
+
+export function recomputeSessionFromHands(state: Session, hands: SessionHistoryEntry[]): Partial<Session> {
+  const cleanState = createCleanSessionStateFromSession(state, hands)
+
+  return hands.reduce(
+    (currentState, hand) => applyHandInput(currentState, hand.input, hand.timestamp),
+    cleanState,
+  )
+}
+
 export function createSessionState(payload: CreateSessionPayload): Session {
   const normalizedPlayers =
     payload.mode === 'duel'
@@ -306,6 +413,29 @@ export function sessionReducer(state: Session, action: SessionAction): Session {
       )
 
       return progressAfterHand(withHistory)
+    }
+
+    case 'REPLACE_LAST_HAND': {
+      if (state.history.length === 0) {
+        return state
+      }
+
+      const updatedHistory = state.history.map((entry, index) =>
+        index === state.history.length - 1
+          ? {
+              ...entry,
+              handId: action.payload.handId,
+              mode: (isMultiplayerHandInput(action.payload) ? 'multiplayer' : 'duel') as GameMode,
+              input: action.payload,
+            }
+          : entry,
+      )
+      const recomputed = recomputeSessionFromHands(state, updatedHistory)
+
+      return {
+        ...state,
+        ...recomputed,
+      }
     }
 
     case 'ADVANCE_RUNG':
