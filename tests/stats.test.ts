@@ -112,15 +112,15 @@ function createCompletedSession(input: { isComplete: boolean }): Session {
 }
 
 describe('completedGamesStorage', () => {
-  let consoleLogSpy: ReturnType<typeof vi.spyOn>
+  let consoleWarnSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
     vi.stubGlobal('localStorage', createLocalStorageMock())
-    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
   })
 
   afterEach(() => {
-    consoleLogSpy.mockRestore()
+    consoleWarnSpy.mockRestore()
     vi.unstubAllGlobals()
   })
 
@@ -165,8 +165,52 @@ describe('completedGamesStorage', () => {
       finalScores: { Ari: 20, Bex: 10 },
     })
     expect(localStorage.getItem(COMPLETED_GAMES_STORAGE_KEY)).toBe(JSON.stringify(records))
-    expect(consoleLogSpy).toHaveBeenCalledTimes(1)
-    expect(consoleLogSpy).toHaveBeenCalledWith('SAVING GAME', records[0])
+    expect(consoleWarnSpy).not.toHaveBeenCalled()
+  })
+
+  it('does not drop a different completed game when a legacy session id collides', () => {
+    const earlierFourPlayerGame = createRecord({
+      id: 'session-1',
+      mode: 'multiplayer',
+      playerCount: 4,
+      playerNames: ['Ari', 'Bex', 'Cy', 'Erin'],
+      winnerName: 'Erin',
+      finalScores: { Ari: 10, Bex: 20, Cy: 30, Erin: 40 },
+      finishingPositions: [
+        { name: 'Erin', score: 40, position: 1 },
+        { name: 'Cy', score: 30, position: 2 },
+        { name: 'Bex', score: 20, position: 3 },
+        { name: 'Ari', score: 10, position: 4 },
+      ],
+    })
+    const laterFourPlayerGame = createRecord({
+      id: 'session-1',
+      completedAt: '2026-04-02T12:00:00.000Z',
+      mode: 'multiplayer',
+      playerCount: 4,
+      playerNames: ['Ari', 'Cole', 'Pinkava', 'Erin'],
+      winnerName: 'Cole',
+      finalScores: { Ari: 12, Cole: 44, Pinkava: 18, Erin: 36 },
+      finishingPositions: [
+        { name: 'Cole', score: 44, position: 1 },
+        { name: 'Erin', score: 36, position: 2 },
+        { name: 'Pinkava', score: 18, position: 3 },
+        { name: 'Ari', score: 12, position: 4 },
+      ],
+    })
+
+    appendCompletedGameRecord(earlierFourPlayerGame)
+    const savedCollision = appendCompletedGameRecord(laterFourPlayerGame)
+
+    const records = loadCompletedGameRecords()
+    const summary = summarizeCompletedGames(records).multiplayerByPlayerCount[4]
+
+    expect(records).toHaveLength(2)
+    expect(savedCollision?.id).toMatch(/^session-1-20260402T120000000Z/)
+    expect(summary.totalGames).toBe(2)
+    expect(summary.players.map((player) => player.playerName)).toContain('Cole')
+    expect(summary.players.map((player) => player.playerName)).toContain('Pinkava')
+    expect(summary.players.find((player) => player.playerName === 'Erin')?.winRate).toBe(50)
   })
 })
 

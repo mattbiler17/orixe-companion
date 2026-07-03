@@ -84,30 +84,73 @@ export function loadCompletedGameRecords(): CompletedGameRecord[] {
   return load<CompletedGameRecord[]>(COMPLETED_GAMES_STORAGE_KEY) ?? []
 }
 
-export function saveCompletedGameRecords(records: CompletedGameRecord[]) {
-  save(COMPLETED_GAMES_STORAGE_KEY, records)
+export function saveCompletedGameRecords(records: CompletedGameRecord[]): boolean {
+  return save(COMPLETED_GAMES_STORAGE_KEY, records)
 }
 
-export function appendCompletedGameRecord(record: CompletedGameRecord) {
-  const currentRecords = loadCompletedGameRecords()
+function isSameCompletedGameRecord(left: CompletedGameRecord, right: CompletedGameRecord): boolean {
+  return (
+    left.completedAt === right.completedAt &&
+    left.mode === right.mode &&
+    left.playerCount === right.playerCount &&
+    left.winnerName === right.winnerName &&
+    left.totalRungsPlayed === right.totalRungsPlayed &&
+    left.durationMs === right.durationMs &&
+    JSON.stringify(left.playerNames) === JSON.stringify(right.playerNames) &&
+    JSON.stringify(left.finalScores) === JSON.stringify(right.finalScores) &&
+    JSON.stringify(left.finishingPositions) === JSON.stringify(right.finishingPositions)
+  )
+}
 
-  if (currentRecords.some((currentRecord) => currentRecord.id === record.id)) {
-    return
+function createCollisionSafeRecord(record: CompletedGameRecord, currentRecords: CompletedGameRecord[]): CompletedGameRecord {
+  if (!currentRecords.some((currentRecord) => currentRecord.id === record.id)) {
+    return record
   }
 
-  console.log('SAVING GAME', record)
-  saveCompletedGameRecords([...currentRecords, record])
+  const completedAtKey = record.completedAt.replace(/[^a-zA-Z0-9]/g, '')
+  const baseId = `${record.id}-${completedAtKey}`
+  let nextId = baseId
+  let suffix = 2
+
+  while (currentRecords.some((currentRecord) => currentRecord.id === nextId)) {
+    nextId = `${baseId}-${suffix}`
+    suffix += 1
+  }
+
+  return {
+    ...record,
+    id: nextId,
+  }
 }
 
-export function persistCompletedGameIfNeeded(previousSession: Session, nextSession: Session) {
+export function appendCompletedGameRecord(record: CompletedGameRecord): CompletedGameRecord | null {
+  const currentRecords = loadCompletedGameRecords()
+  const duplicateIdRecord = currentRecords.find((currentRecord) => currentRecord.id === record.id)
+
+  if (duplicateIdRecord && isSameCompletedGameRecord(duplicateIdRecord, record)) {
+    return duplicateIdRecord
+  }
+
+  const recordToSave = createCollisionSafeRecord(record, currentRecords)
+  const saved = saveCompletedGameRecords([...currentRecords, recordToSave])
+
+  if (!saved) {
+    console.warn('completed game save failed', recordToSave)
+    return null
+  }
+
+  return recordToSave
+}
+
+export function persistCompletedGameIfNeeded(previousSession: Session, nextSession: Session): CompletedGameRecord | null {
   if (previousSession.isComplete || !nextSession.isComplete) {
-    return
+    return null
   }
 
   const record = createCompletedGameRecord(nextSession)
   if (!record) {
-    return
+    return null
   }
 
-  appendCompletedGameRecord(record)
+  return appendCompletedGameRecord(record)
 }

@@ -6,16 +6,18 @@ function getStorage(): Storage | null {
   return typeof localStorage === 'undefined' ? null : localStorage
 }
 
-export function save(key: string, value: unknown) {
+export function save(key: string, value: unknown): boolean {
   const storage = getStorage()
   if (!storage) {
-    return
+    return false
   }
 
   try {
     storage.setItem(key, JSON.stringify(value))
+    return true
   } catch (error) {
     console.warn('storage save failed', error)
+    return false
   }
 }
 
